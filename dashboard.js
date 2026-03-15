@@ -8,7 +8,7 @@ const BotManager = require("./bot-manager");
 const Stripe = require("stripe");
 const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest } = require("./email");
 
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const app = express();
 const PORT = process.env.DASHBOARD_PORT || 3000;
 

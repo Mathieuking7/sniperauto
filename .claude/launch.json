@@ -6,6 +6,12 @@
       "runtimeExecutable": "node",
       "runtimeArgs": ["/Users/mathieugaillac/test/auto1-monitor/dashboard.js"],
       "port": 3000
+    },
+    {
+      "name": "dealradar",
+      "runtimeExecutable": "sh",
+      "runtimeArgs": ["-c", "cd /Users/mathieugaillac/test/auto1-monitor/react-site && npm run dev -- --port 5173"],
+      "port": 5173
     }
   ]
 }
