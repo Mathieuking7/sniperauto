@@ -1,0 +1,6 @@
+node_modules/
+.env
+auto1.db
+auth-state/
+remotion-video/node_modules/
+remotion-video/out/

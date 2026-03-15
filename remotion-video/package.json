@@ -1,0 +1,30 @@
+{
+  "name": "sniperauto-video",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "start": "npx remotion studio",
+    "build": "npx remotion render SniperAutoAd out/sniperauto-ad.mp4",
+    "upgrade": "npx remotion upgrade"
+  },
+  "dependencies": {
+    "@remotion/animation-utils": "^4.0.435",
+    "@remotion/cli": "4.0.261",
+    "@remotion/google-fonts": "4.0.261",
+    "@remotion/layout-utils": "^4.0.435",
+    "@remotion/media-utils": "^4.0.435",
+    "@remotion/motion-blur": "^4.0.435",
+    "@remotion/noise": "^4.0.435",
+    "@remotion/paths": "^4.0.435",
+    "@remotion/preload": "^4.0.435",
+    "@remotion/shapes": "^4.0.435",
+    "@remotion/transitions": "^4.0.435",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1",
+    "remotion": "4.0.261"
+  },
+  "devDependencies": {
+    "@types/react": "^18.3.12",
+    "typescript": "^5.7.0"
+  }
+}

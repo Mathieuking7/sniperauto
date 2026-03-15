@@ -1,0 +1,18 @@
+export const COLORS = {
+  blue: '#007AFF',
+  blueDark: '#0055CC',
+  green: '#25D366',
+  purple: '#5856D6',
+  orange: '#FF9500',
+  red: '#FF3B30',
+  teal: '#5AC8FA',
+  bg: '#f5f5f7',
+  dark: '#1a1a1a',
+  darkGray: '#2c2c2e',
+  white: '#ffffff',
+  text: '#1d1d1f',
+  textSecondary: '#86868b',
+  whatsappBg: '#ECE5DD',
+  whatsappGreen: '#DCF8C6',
+  whatsappHeader: '#075E54',
+};
