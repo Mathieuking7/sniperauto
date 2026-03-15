@@ -1,83 +1,95 @@
-import React from "react";
-import { AbsoluteFill, Sequence, useVideoConfig } from "remotion";
-import { IntroScene } from "./scenes/IntroScene";
-import { ProblemScene } from "./scenes/ProblemScene";
-import { SolutionScene } from "./scenes/SolutionScene";
-import { FeaturesScene } from "./scenes/FeaturesScene";
-import { CTAScene } from "./scenes/CTAScene";
-import { EndCardScene } from "./scenes/EndCardScene";
+import React from 'react';
+import { TransitionSeries, linearTiming } from '@remotion/transitions';
+import { slide } from '@remotion/transitions/slide';
+import { fade } from '@remotion/transitions/fade';
+import { HookScene } from './scenes/HookScene';
+import { ProblemScene } from './scenes/ProblemScene';
+import { IntroScene } from './scenes/IntroScene';
+import { HowItWorksScene } from './scenes/HowItWorksScene';
+import { WhatsAppScene } from './scenes/WhatsAppScene';
+import { PourQuiScene } from './scenes/PourQuiScene';
+import { PricingScene } from './scenes/PricingScene';
+import { EndCardScene } from './scenes/EndCardScene';
 
 export const SniperAutoAd: React.FC = () => {
-  const { fps } = useVideoConfig();
-
-  // Timeline in seconds -> frames
-  const INTRO_START = 0;
-  const INTRO_DURATION = 4 * fps; // 0-4s
-
-  const PROBLEM_START = 4 * fps;
-  const PROBLEM_DURATION = 4 * fps; // 4-8s
-
-  const SOLUTION_START = 8 * fps;
-  const SOLUTION_DURATION = 6 * fps; // 8-14s
-
-  const FEATURES_START = 14 * fps;
-  const FEATURES_DURATION = 6 * fps; // 14-20s
-
-  const CTA_START = 20 * fps;
-  const CTA_DURATION = 5 * fps; // 20-25s
-
-  const END_START = 25 * fps;
-  const END_DURATION = 5 * fps; // 25-30s
+  const transitionDuration = 12;
 
   return (
-    <AbsoluteFill>
-      <Sequence
-        from={INTRO_START}
-        durationInFrames={INTRO_DURATION}
-        premountFor={fps}
-      >
-        <IntroScene />
-      </Sequence>
+    <TransitionSeries>
+      {/* Scene 1: Hook (90 frames) */}
+      <TransitionSeries.Sequence durationInFrames={90}>
+        <HookScene />
+      </TransitionSeries.Sequence>
 
-      <Sequence
-        from={PROBLEM_START}
-        durationInFrames={PROBLEM_DURATION}
-        premountFor={fps}
-      >
+      <TransitionSeries.Transition
+        presentation={slide({ direction: 'from-right' })}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
+
+      {/* Scene 2: Problem (120 frames) */}
+      <TransitionSeries.Sequence durationInFrames={120}>
         <ProblemScene />
-      </Sequence>
+      </TransitionSeries.Sequence>
 
-      <Sequence
-        from={SOLUTION_START}
-        durationInFrames={SOLUTION_DURATION}
-        premountFor={fps}
-      >
-        <SolutionScene />
-      </Sequence>
+      <TransitionSeries.Transition
+        presentation={fade()}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
 
-      <Sequence
-        from={FEATURES_START}
-        durationInFrames={FEATURES_DURATION}
-        premountFor={fps}
-      >
-        <FeaturesScene />
-      </Sequence>
+      {/* Scene 3: SniperAuto Intro (90 frames) */}
+      <TransitionSeries.Sequence durationInFrames={90}>
+        <IntroScene />
+      </TransitionSeries.Sequence>
 
-      <Sequence
-        from={CTA_START}
-        durationInFrames={CTA_DURATION}
-        premountFor={fps}
-      >
-        <CTAScene />
-      </Sequence>
+      <TransitionSeries.Transition
+        presentation={slide({ direction: 'from-bottom' })}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
 
-      <Sequence
-        from={END_START}
-        durationInFrames={END_DURATION}
-        premountFor={fps}
-      >
+      {/* Scene 4: How It Works (240 frames) — 2 steps */}
+      <TransitionSeries.Sequence durationInFrames={240}>
+        <HowItWorksScene />
+      </TransitionSeries.Sequence>
+
+      <TransitionSeries.Transition
+        presentation={fade()}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
+
+      {/* Scene 5: WhatsApp Demo (150 frames) */}
+      <TransitionSeries.Sequence durationInFrames={150}>
+        <WhatsAppScene />
+      </TransitionSeries.Sequence>
+
+      <TransitionSeries.Transition
+        presentation={fade()}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
+
+      {/* Scene 6: Pour qui (90 frames) */}
+      <TransitionSeries.Sequence durationInFrames={90}>
+        <PourQuiScene />
+      </TransitionSeries.Sequence>
+
+      <TransitionSeries.Transition
+        presentation={fade()}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
+
+      {/* Scene 7: Pricing + CTA (120 frames) */}
+      <TransitionSeries.Sequence durationInFrames={120}>
+        <PricingScene />
+      </TransitionSeries.Sequence>
+
+      <TransitionSeries.Transition
+        presentation={fade()}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
+
+      {/* Scene 8: End Card (60 frames) */}
+      <TransitionSeries.Sequence durationInFrames={60}>
         <EndCardScene />
-      </Sequence>
-    </AbsoluteFill>
+      </TransitionSeries.Sequence>
+    </TransitionSeries>
   );
 };

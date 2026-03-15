@@ -147,7 +147,7 @@ export const HookScene: React.FC = () => {
             textAlign: 'center',
           }}
         >
-          Combien en avez-vous rate ?
+          Combien en avez-vous raté ?
         </div>
       </div>
     </AbsoluteFill>

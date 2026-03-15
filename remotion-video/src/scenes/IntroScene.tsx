@@ -143,7 +143,7 @@ export const IntroScene: React.FC = () => {
             transform: `translateY(${tagY}px)`,
           }}
         >
-          Vos deals auto, livres sur WhatsApp
+          Vos deals auto, livrés sur WhatsApp
         </div>
       </div>
     </AbsoluteFill>

@@ -1,42 +1,52 @@
-import React from "react";
+import React from 'react';
 import {
   AbsoluteFill,
   interpolate,
   spring,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import { fontFamily } from "../fonts";
-import { COLORS } from "../colors";
+} from 'remotion';
+import { fontFamily } from '../fonts';
+import { COLORS } from '../colors';
 
 const FEATURES = [
   {
     icon: (
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <circle cx="12" cy="12" r="10" />
         <polyline points="12,6 12,12 16,14" />
       </svg>
     ),
-    text: "Scan Auto1 24h/24",
+    title: 'Scan 24h/24',
+    subtitle: 'Surveillance continue des nouvelles annonces Auto1',
+    color: COLORS.blue,
     delay: 0,
+    fromX: -400,
   },
   {
     icon: (
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-        <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07 19.5 19.5 0 01-6-6 19.79 19.79 0 01-3.07-8.67A2 2 0 014.11 2h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L8.09 9.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z" />
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+        <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9" />
+        <path d="M13.73 21a2 2 0 0 1-3.46 0" />
       </svg>
     ),
-    text: "Alerte WhatsApp instantanee",
-    delay: 20,
+    title: 'Alerte instantanée',
+    subtitle: 'Notification WhatsApp dès que le deal correspond',
+    color: COLORS.green,
+    delay: 15,
+    fromX: 0,
   },
   {
     icon: (
-      <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
         <polygon points="22,3 2,3 10,12.46 10,19 14,21 14,12.46" />
       </svg>
     ),
-    text: "Filtrage intelligent par criteres",
-    delay: 40,
+    title: 'Filtrage intelligent',
+    subtitle: 'Critères personnalisés : marque, prix, km, carburant',
+    color: COLORS.purple,
+    delay: 30,
+    fromX: 400,
   },
 ];
 
@@ -44,74 +54,121 @@ export const FeaturesScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
+  // Section title
+  const titleOpacity = interpolate(frame, [0, 12], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
+
   return (
     <AbsoluteFill
       style={{
         backgroundColor: COLORS.bg,
-        justifyContent: "center",
-        alignItems: "center",
         fontFamily,
+        justifyContent: 'center',
+        alignItems: 'center',
       }}
     >
+      {/* Title */}
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          gap: 50,
-          padding: "0 80px",
-          width: "100%",
+          position: 'absolute',
+          top: 100,
+          textAlign: 'center',
+          opacity: titleOpacity,
         }}
       >
-        {FEATURES.map((feature, i) => {
-          const featureSpring = spring({
+        <div style={{ fontSize: 52, fontWeight: 700, color: COLORS.text }}>
+          Comment ça marche ?
+        </div>
+      </div>
+
+      {/* 3 feature cards */}
+      <div
+        style={{
+          display: 'flex',
+          gap: 60,
+          marginTop: 40,
+        }}
+      >
+        {FEATURES.map((feat, i) => {
+          const cardSpring = spring({
             frame,
             fps,
-            delay: feature.delay,
-            config: { damping: 15 },
+            delay: feat.delay,
+            config: { damping: 12, stiffness: 80 },
           });
-          const opacity = interpolate(
-            frame,
-            [feature.delay, feature.delay + 12],
-            [0, 1],
-            { extrapolateLeft: "clamp", extrapolateRight: "clamp" }
-          );
-          const translateX = interpolate(featureSpring, [0, 1], [-80, 0]);
+          const cardOpacity = interpolate(frame, [feat.delay, feat.delay + 12], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          });
+          const cardX = interpolate(cardSpring, [0, 1], [feat.fromX, 0]);
+          const cardY = interpolate(cardSpring, [0, 1], [80, 0]);
+
+          // Subtitle appears after card
+          const subDelay = feat.delay + 20;
+          const subOpacity = interpolate(frame, [subDelay, subDelay + 12], [0, 1], {
+            extrapolateLeft: 'clamp',
+            extrapolateRight: 'clamp',
+          });
+          const subSpring = spring({ frame, fps, delay: subDelay, config: { damping: 14 } });
+          const subY = interpolate(subSpring, [0, 1], [15, 0]);
 
           return (
             <div
               key={i}
               style={{
-                display: "flex",
-                alignItems: "center",
-                gap: 32,
-                opacity,
-                transform: `translateX(${translateX}px)`,
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                width: 380,
+                opacity: cardOpacity,
+                transform: `translate(${cardX}px, ${cardY}px)`,
               }}
             >
+              {/* Icon circle */}
               <div
                 style={{
-                  width: 90,
-                  height: 90,
-                  borderRadius: 22,
-                  background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.accentDark})`,
-                  display: "flex",
-                  justifyContent: "center",
-                  alignItems: "center",
-                  flexShrink: 0,
-                  boxShadow: "0 8px 30px rgba(0, 122, 255, 0.25)",
+                  width: 100,
+                  height: 100,
+                  borderRadius: 28,
+                  backgroundColor: feat.color,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  boxShadow: `0 12px 40px ${feat.color}40`,
+                  marginBottom: 28,
                 }}
               >
-                {feature.icon}
+                {feat.icon}
               </div>
+
+              {/* Title */}
               <div
                 style={{
-                  fontSize: 38,
-                  fontWeight: 600,
+                  fontSize: 36,
+                  fontWeight: 700,
                   color: COLORS.text,
-                  lineHeight: 1.3,
+                  textAlign: 'center',
+                  marginBottom: 12,
                 }}
               >
-                {feature.text}
+                {feat.title}
+              </div>
+
+              {/* Subtitle */}
+              <div
+                style={{
+                  fontSize: 22,
+                  fontWeight: 400,
+                  color: COLORS.textSecondary,
+                  textAlign: 'center',
+                  lineHeight: 1.4,
+                  opacity: subOpacity,
+                  transform: `translateY(${subY}px)`,
+                }}
+              >
+                {feat.subtitle}
               </div>
             </div>
           );

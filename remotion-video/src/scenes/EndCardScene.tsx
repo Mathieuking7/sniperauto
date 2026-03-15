@@ -1,106 +1,104 @@
-import React from "react";
+import React from 'react';
 import {
   AbsoluteFill,
   interpolate,
   spring,
   useCurrentFrame,
   useVideoConfig,
-} from "remotion";
-import { fontFamily } from "../fonts";
-import { COLORS } from "../colors";
+} from 'remotion';
+import { fontFamily } from '../fonts';
+import { COLORS } from '../colors';
 
 export const EndCardScene: React.FC = () => {
   const frame = useCurrentFrame();
   const { fps } = useVideoConfig();
 
-  const logoSpring = spring({ frame, fps, config: { damping: 12 } });
-  const logoOpacity = interpolate(frame, [0, 15], [0, 1], {
-    extrapolateRight: "clamp",
+  // Logo spring
+  const logoSpring = spring({ frame, fps, config: { damping: 10 } });
+  const logoOpacity = interpolate(frame, [0, 12], [0, 1], {
+    extrapolateRight: 'clamp',
   });
 
-  const urlOpacity = interpolate(frame, [20, 35], [0, 1], {
-    extrapolateLeft: "clamp",
-    extrapolateRight: "clamp",
+  // URL
+  const urlDelay = 15;
+  const urlOpacity = interpolate(frame, [urlDelay, urlDelay + 12], [0, 1], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
   });
-  const urlY = spring({ frame, fps, delay: 20, config: { damping: 200 } });
+  const urlSpring = spring({ frame, fps, delay: urlDelay, config: { damping: 14 } });
+  const urlY = interpolate(urlSpring, [0, 1], [20, 0]);
 
   return (
     <AbsoluteFill
       style={{
-        backgroundColor: COLORS.text,
-        justifyContent: "center",
-        alignItems: "center",
+        background: `linear-gradient(135deg, ${COLORS.dark} 0%, #0a1628 50%, ${COLORS.blueDark} 100%)`,
+        justifyContent: 'center',
+        alignItems: 'center',
         fontFamily,
       }}
     >
+      {/* Logo row */}
       <div
         style={{
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
-          gap: 50,
+          display: 'flex',
+          alignItems: 'center',
+          gap: 28,
+          opacity: logoOpacity,
+          transform: `scale(${interpolate(logoSpring, [0, 1], [0.6, 1])})`,
         }}
       >
-        {/* Logo */}
         <div
           style={{
-            display: "flex",
-            alignItems: "center",
-            gap: 24,
-            opacity: logoOpacity,
-            transform: `scale(${logoSpring})`,
+            width: 100,
+            height: 100,
+            borderRadius: 26,
+            background: `linear-gradient(135deg, ${COLORS.blue}, ${COLORS.blueDark})`,
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            boxShadow: '0 16px 50px rgba(0, 122, 255, 0.4)',
           }}
         >
-          <div
-            style={{
-              width: 90,
-              height: 90,
-              borderRadius: 22,
-              background: `linear-gradient(135deg, ${COLORS.accent}, ${COLORS.accentDark})`,
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              boxShadow: "0 12px 40px rgba(0, 122, 255, 0.4)",
-            }}
-          >
-            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <circle cx="12" cy="12" r="10" />
-              <circle cx="12" cy="12" r="4" />
-              <line x1="22" y1="12" x2="18" y2="12" />
-              <line x1="6" y1="12" x2="2" y2="12" />
-              <line x1="12" y1="6" x2="12" y2="2" />
-              <line x1="12" y1="22" x2="12" y2="18" />
-            </svg>
-          </div>
-          <div
-            style={{
-              fontSize: 64,
-              fontWeight: 800,
-              color: COLORS.white,
-              letterSpacing: -2,
-            }}
-          >
-            SniperAuto
-          </div>
+          <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <circle cx="12" cy="12" r="10" />
+            <circle cx="12" cy="12" r="6" />
+            <circle cx="12" cy="12" r="2" />
+            <line x1="12" y1="2" x2="12" y2="6" />
+            <line x1="12" y1="18" x2="12" y2="22" />
+            <line x1="2" y1="12" x2="6" y2="12" />
+            <line x1="18" y1="12" x2="22" y2="12" />
+          </svg>
         </div>
-
-        {/* URL */}
         <div
           style={{
-            opacity: urlOpacity,
-            transform: `translateY(${interpolate(urlY, [0, 1], [20, 0])}px)`,
+            fontSize: 80,
+            fontWeight: 800,
+            color: COLORS.white,
+            letterSpacing: -3,
           }}
         >
-          <div
-            style={{
-              fontSize: 40,
-              fontWeight: 500,
-              color: COLORS.accent,
-              letterSpacing: 1,
-            }}
-          >
-            sniperauto.fr
-          </div>
+          SniperAuto
+        </div>
+      </div>
+
+      {/* URL */}
+      <div
+        style={{
+          position: 'absolute',
+          bottom: 280,
+          opacity: urlOpacity,
+          transform: `translateY(${urlY}px)`,
+        }}
+      >
+        <div
+          style={{
+            fontSize: 38,
+            fontWeight: 500,
+            color: COLORS.blue,
+            letterSpacing: 2,
+          }}
+        >
+          sniperauto.fr
         </div>
       </div>
     </AbsoluteFill>

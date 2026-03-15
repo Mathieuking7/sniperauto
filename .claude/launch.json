@@ -1,0 +1,11 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dashboard",
+      "runtimeExecutable": "node",
+      "runtimeArgs": ["/Users/mathieugaillac/test/auto1-monitor/dashboard.js"],
+      "port": 3000
+    }
+  ]
+}
