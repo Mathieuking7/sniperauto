@@ -50,7 +50,7 @@ export default function Testimonials() {
           if (e.isIntersecting) {
             e.target.classList.add('visible')
             if (e.target === bigRef.current) {
-              animateCount(bigRef.current!, 1248, 1800)
+              animateCount(bigRef.current!, 340, 1800)
             }
             observer.unobserve(e.target)
           }
