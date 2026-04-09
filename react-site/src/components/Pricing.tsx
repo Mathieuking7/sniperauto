@@ -60,7 +60,7 @@ export default function Pricing() {
     <section className="pricing" id="pricing" ref={sectionRef}>
       <div className="container">
         <h2 className="section-title animate-on-scroll">Choisissez votre avantage concurrentiel</h2>
-        <p className="section-subtitle animate-on-scroll">Pendant que vous comparez, un abonne Pro vient de recevoir une alerte.</p>
+        <p className="section-subtitle animate-on-scroll">Pendant que vous comparez, un abonné Pro vient de recevoir une alerte.</p>
 
         <div style={{ textAlign: 'center', marginBottom: '40px' }}>
           <div style={{ display: 'inline-flex', alignItems: 'center', gap: '16px', background: '#f5f5f5', padding: '8px 16px', borderRadius: '8px' }}>
