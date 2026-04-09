@@ -36,7 +36,7 @@ export const ProblemScene: React.FC = () => {
       {/* Title */}
       <div style={{ position: 'absolute', top: 60, left: 0, right: 0, textAlign: 'center', opacity: titleOpacity, transform: `translateY(${titleY}px)`, zIndex: 10 }}>
         <div style={{ fontSize: 48, fontWeight: 700, color: COLORS.text, lineHeight: 1.3 }}>
-          Des centaines de deals passent chaque jour sur Auto1...
+          Pendant que vous travaillez, vos concurrents choppent les meilleures affaires
         </div>
       </div>
 

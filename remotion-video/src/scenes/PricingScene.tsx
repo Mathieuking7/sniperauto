@@ -91,7 +91,7 @@ export const PricingScene: React.FC = () => {
             }}
           >
             À partir de{' '}
-            <span style={{ color: COLORS.blue }}>29 €/mois</span>
+            <span style={{ color: COLORS.blue }}>79 €/mois</span>
           </div>
         </div>
 

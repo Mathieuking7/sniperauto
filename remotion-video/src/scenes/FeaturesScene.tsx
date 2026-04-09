@@ -18,7 +18,7 @@ const FEATURES = [
       </svg>
     ),
     title: 'Scan 24h/24',
-    subtitle: 'Surveillance continue des nouvelles annonces Auto1',
+    subtitle: 'Surveillance continue de 8+ plateformes automobiles',
     color: COLORS.blue,
     delay: 0,
     fromX: -400,

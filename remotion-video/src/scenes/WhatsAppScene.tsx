@@ -52,7 +52,7 @@ export const WhatsAppScene: React.FC = () => {
             Vos deals arrivent directement sur WhatsApp
           </div>
           <div style={{ fontSize: 22, color: COLORS.textSecondary, lineHeight: 1.5 }}>
-            Les meilleures affaires Auto1, filtrées et livrées en temps réel.
+            Les meilleures affaires de 8+ plateformes, filtrées et livrées en temps réel.
           </div>
           <div style={{ display: 'flex', gap: 24, marginTop: 32 }}>
             <div style={{ textAlign: 'center' }}>

@@ -5,9 +5,11 @@ import { fade } from '@remotion/transitions/fade';
 import { HookScene } from './scenes/HookScene';
 import { ProblemScene } from './scenes/ProblemScene';
 import { IntroScene } from './scenes/IntroScene';
+import { PlatformsScene } from './scenes/PlatformsScene';
 import { HowItWorksScene } from './scenes/HowItWorksScene';
 import { WhatsAppScene } from './scenes/WhatsAppScene';
 import { PourQuiScene } from './scenes/PourQuiScene';
+import { EmployeeROIScene } from './scenes/EmployeeROIScene';
 import { PricingScene } from './scenes/PricingScene';
 import { EndCardScene } from './scenes/EndCardScene';
 
@@ -42,11 +44,21 @@ export const SniperAutoAd: React.FC = () => {
       </TransitionSeries.Sequence>
 
       <TransitionSeries.Transition
+        presentation={fade()}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
+
+      {/* Scene 4: Platforms (120 frames) */}
+      <TransitionSeries.Sequence durationInFrames={120}>
+        <PlatformsScene />
+      </TransitionSeries.Sequence>
+
+      <TransitionSeries.Transition
         presentation={slide({ direction: 'from-bottom' })}
         timing={linearTiming({ durationInFrames: transitionDuration })}
       />
 
-      {/* Scene 4: How It Works (240 frames) — 2 steps */}
+      {/* Scene 5: How It Works (240 frames) — 2 steps */}
       <TransitionSeries.Sequence durationInFrames={240}>
         <HowItWorksScene />
       </TransitionSeries.Sequence>
@@ -76,7 +88,17 @@ export const SniperAutoAd: React.FC = () => {
         timing={linearTiming({ durationInFrames: transitionDuration })}
       />
 
-      {/* Scene 7: Pricing + CTA (120 frames) */}
+      {/* Scene 7: Employee ROI (120 frames) */}
+      <TransitionSeries.Sequence durationInFrames={120}>
+        <EmployeeROIScene />
+      </TransitionSeries.Sequence>
+
+      <TransitionSeries.Transition
+        presentation={fade()}
+        timing={linearTiming({ durationInFrames: transitionDuration })}
+      />
+
+      {/* Scene 8: Pricing + CTA (120 frames) */}
       <TransitionSeries.Sequence durationInFrames={120}>
         <PricingScene />
       </TransitionSeries.Sequence>
@@ -86,7 +108,7 @@ export const SniperAutoAd: React.FC = () => {
         timing={linearTiming({ durationInFrames: transitionDuration })}
       />
 
-      {/* Scene 8: End Card (60 frames) */}
+      {/* Scene 9: End Card (60 frames) */}
       <TransitionSeries.Sequence durationInFrames={60}>
         <EndCardScene />
       </TransitionSeries.Sequence>

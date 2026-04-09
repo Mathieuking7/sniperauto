@@ -113,7 +113,7 @@ const Step1Configure: React.FC = () => {
   );
 };
 
-// ── Step 2: AI filtering with REAL Auto1 photos ─────────────────────────────
+// ── Step 2: AI filtering with real photos from all platforms ──────────────────
 
 interface DealCard {
   name: string;
@@ -215,7 +215,7 @@ const Step2Filter: React.FC = () => {
               padding: '12px 16px', transform: `translateX(${cardX}px)`, opacity: cardOp,
               boxShadow: glowShadow, height: 88,
             }}>
-              {/* Real Auto1 car photo */}
+              {/* Real car photo from any platform */}
               <div style={{ width: 100, height: 64, borderRadius: 10, overflow: 'hidden', flexShrink: 0 }}>
                 <Img src={deal.img} style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
               </div>

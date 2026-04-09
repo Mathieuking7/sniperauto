@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
 import Nav from './components/Nav'
 import Hero from './components/Hero'
+import VideoDemo from './components/VideoDemo'
 import Marketplaces from './components/Marketplaces'
 import HowItWorks from './components/HowItWorks'
 import PourQui from './components/PourQui'
@@ -41,6 +42,7 @@ export default function App() {
       <FloatingBg />
       <Nav />
       <Hero />
+      <VideoDemo />
       <Marketplaces />
       <HowItWorks />
       <PourQui />
