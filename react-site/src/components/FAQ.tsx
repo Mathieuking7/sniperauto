@@ -7,8 +7,8 @@ const faqs = [
         <circle cx="11" cy="11" r="8" /><path d="M21 21l-4.35-4.35" />
       </svg>
     ),
-    question: "Comment fonctionne la surveillance d'Auto1 ?",
-    answer: "Notre algorithme scanne Auto1 en continu, analysant chaque nouvelle annonce dès sa publication. Quand un véhicule correspond à vos critères, vous recevez une alerte WhatsApp en quelques secondes.",
+    question: "Comment fonctionne SniperAuto ?",
+    answer: "SniperAuto scanne en continu tous les canaux que vous avez choisis (Auto1, Le Bon Coin, Facebook Marketplace, Aramis Auto Pro, La Centrale, ParuVendu, Alcopa, BCA, Pro Encheres VO...). Dès qu'un véhicule correspond à vos critères, vous recevez une alerte WhatsApp en quelques secondes.",
   },
   {
     icon: (
@@ -16,8 +16,8 @@ const faqs = [
         <path d="M12 5v14M5 12h14" />
       </svg>
     ),
-    question: "Puis-je configurer plusieurs alertes ?",
-    answer: "Oui, selon votre plan. Le plan Essentiel inclut 3 alertes et le plan Pro 10 alertes. Chaque alerte peut avoir ses propres critères de recherche.",
+    question: "Combien d'alertes puis-je configurer ?",
+    answer: "Les deux plans incluent des alertes illimitées. Vous pouvez configurer autant de recherches que vous le souhaitez. Chaque alerte peut avoir ses propres critères (marque, prix, kilométrage, localisation, etc.).",
   },
   {
     icon: (
@@ -25,8 +25,8 @@ const faqs = [
         <rect x="3" y="4" width="18" height="18" rx="2" /><path d="M16 2v4M8 2v4M3 10h18" />
       </svg>
     ),
-    question: "Quand les autres marketplaces seront-elles disponibles ?",
-    answer: "Le Bon Coin et La Centrale sont prévus pour le T2 2026. ParuVendu et Facebook Marketplace suivront au T3. Commencez maintenant pour être informé en priorité.",
+    question: "Quels sont les canaux disponibles ?",
+    answer: "Essentiel: 1 canal au choix parmi Auto1, Le Bon Coin, Facebook Marketplace, Aramis Auto Pro. Pro: Accès à tous les canaux + Alcopa, BCA, Pro Encheres VO et autres. Le plan Pro offre une couverture complète du marché automobile français.",
   },
   {
     icon: (
@@ -35,7 +35,7 @@ const faqs = [
       </svg>
     ),
     question: "Puis-je annuler mon abonnement ?",
-    answer: "Oui, vous pouvez annuler à tout moment sans aucuns frais. Votre abonnement reste actif jusqu'à la fin de la période en cours.",
+    answer: "Oui, sans aucuns frais. Vous pouvez annuler à tout moment directement depuis votre tableau de bord. Votre abonnement reste actif jusqu'à la fin de la période en cours.",
   },
   {
     icon: (
@@ -44,7 +44,7 @@ const faqs = [
       </svg>
     ),
     question: "Comment recevrai-je les alertes ?",
-    answer: "Les alertes sont envoyées directement sur WhatsApp via notre bot vérifié. Le plan Pro inclut également des notifications par email. Aucune application supplémentaire à installer.",
+    answer: "Les alertes arrivent directement sur WhatsApp via notre bot vérifié. Le plan Pro inclut également des notifications par email. Aucune application supplémentaire à installer, et vous pouvez interagir directement depuis WhatsApp.",
   },
   {
     icon: (
@@ -53,8 +53,17 @@ const faqs = [
         <path d="M23 21v-2a4 4 0 00-3-3.87" /><path d="M16 3.13a4 4 0 010 7.75" />
       </svg>
     ),
-    question: "SniperAuto est-il adapté aux particuliers ?",
-    answer: "SniperAuto est conçu principalement pour les professionnels de l'automobile (garagistes, négociants, mandataires), mais le plan Essentiel convient parfaitement aux particuliers à la recherche d'une bonne affaire.",
+    question: "SniperAuto est-il pour les particuliers ou les pros ?",
+    answer: "Pour les deux ! Essentiel (79€/mois) convient parfaitement aux particuliers cherchant une bonne affaire. Pro (99€/mois) est idéal pour les garagistes, négociants et mandataires qui monitalisent les deals.",
+  },
+  {
+    icon: (
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round">
+        <path d="M13 10V3L4 14h7v7l9-11h-7z" />
+      </svg>
+    ),
+    question: "Quelle est la vitesse de détection ?",
+    answer: "Plan Essentiel: scan toutes les heures. Plan Pro: temps réel (< 30 secondes). Cela signifie que les abonnés Pro découvrent les meilleures affaires en premier.",
   },
 ]
 
