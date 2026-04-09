@@ -111,10 +111,10 @@ export default function Pricing() {
               <li><CheckIcon /> 1 canal au choix</li>
               <li><CheckIcon /> Alertes WhatsApp</li>
               <li><CheckIcon /> Support par email</li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Scan temps réel</s></li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Filtres avancés</s></li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Historique des prix</s></li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Account manager</s></li>
+              <li style={{ color: '#e53e3e' }}><CrossIcon /> <s>Scan temps réel</s></li>
+              <li style={{ color: '#e53e3e' }}><CrossIcon /> <s>Filtres avancés</s></li>
+              <li style={{ color: '#e53e3e' }}><CrossIcon /> <s>Historique des prix</s></li>
+              <li style={{ color: '#e53e3e' }}><CrossIcon /> <s>Account manager</s></li>
             </ul>
             <button
               className="pricing-btn secondary"
