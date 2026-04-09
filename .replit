@@ -2,18 +2,6 @@ modules = ["nodejs-20"]
 [agent]
 expertMode = true
 
-[[ports]]
-localPort = 3000
-externalPort = 80
-
-[[ports]]
-localPort = 3001
-externalPort = 3001
-
-[[ports]]
-localPort = 5000
-externalPort = 5000
-
 [workflows]
 runButton = "Project"
 
@@ -50,3 +38,7 @@ STRIPE_PRICE_SETUP_PRO = "price_1TKNCLRDI8MdZ3vay2npZmsM"
 STRIPE_WEBHOOK_SECRET = "whsec_6huSoTm863Il4DJUCJUtPXDebivh4rpT"
 FROM_EMAIL = "SniperAuto <contact@sniperauto.fr>"
 ADMIN_EMAIL = "sosparebrise34.contact@gmail.com"
+
+[[ports]]
+localPort = 3000
+externalPort = 80

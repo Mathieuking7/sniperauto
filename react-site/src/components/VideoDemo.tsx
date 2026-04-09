@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import demoPoster from '@assets/Capture_d’écran_2026-04-09_à_20.37.28_1775762281311.png'
 
 function isMobile() {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -67,27 +68,27 @@ export default function VideoDemo() {
         <div className="video-demo-player animate-on-scroll">
           {mobile ? (
             /* Mobile: native iOS/Android player with controls */
-            <div className="video-demo-wrapper">
+            <div className="video-demo-wrapper" style={{ backgroundImage: `url(${demoPoster})` }}>
               <video
                 ref={videoRef}
                 src="/demo-sniperauto.mp4"
                 controls
                 playsInline
                 preload="metadata"
-                poster=""
+                poster={demoPoster}
               />
             </div>
           ) : (
             /* Desktop: custom player */
             <>
-              <div className="video-demo-wrapper" onClick={showOverlay ? handlePlay : handleVideoClick}>
+              <div className="video-demo-wrapper" onClick={showOverlay ? handlePlay : handleVideoClick} style={{ backgroundImage: `url(${demoPoster})` }}>
                 <video
                   ref={videoRef}
                   src="/demo-sniperauto.mp4"
                   playsInline
                   preload="metadata"
                   muted
-                  poster="/Capture_d’écran_2026-04-09_à_20.37.28_1775762028044.png"
+                  poster={demoPoster}
                   onEnded={() => { setIsPlaying(false); setShowOverlay(true) }}
                 />
 
