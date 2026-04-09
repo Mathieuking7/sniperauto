@@ -35,13 +35,14 @@ export default function Pricing() {
     return () => observer.disconnect()
   }, [])
 
-  const checkout = async (plan: string) => {
-    setLoadingPlan(plan)
+  const checkout = async (plan: string, billing: string) => {
+    const key = `${plan}_${billing}`
+    setLoadingPlan(key)
     try {
       const res = await fetch('/api/checkout', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ plan, billing: 'monthly' }),
+        body: JSON.stringify({ plan, billing }),
       })
       const data = await res.json()
       if (data.url) {
@@ -118,10 +119,10 @@ export default function Pricing() {
             </ul>
             <button
               className="pricing-btn secondary"
-              onClick={() => checkout(isAnnual ? 'essentiel_annual' : 'essentiel')}
-              disabled={loadingPlan === 'essentiel'}
+              onClick={() => checkout('essentiel', isAnnual ? 'annual' : 'monthly')}
+              disabled={loadingPlan === (isAnnual ? 'essentiel_annual' : 'essentiel_monthly')}
             >
-              {loadingPlan === 'essentiel' ? 'Chargement...' : "Demarrer avec l'Essentiel"}
+              {loadingPlan?.startsWith('essentiel') ? 'Chargement...' : "Demarrer avec l'Essentiel"}
             </button>
           </div>
 
@@ -152,11 +153,11 @@ export default function Pricing() {
             </div>
             <button
               className="pricing-btn primary"
-              onClick={() => checkout(isAnnual ? 'pro_annual' : 'pro')}
-              disabled={loadingPlan === 'pro'}
+              onClick={() => checkout('pro', isAnnual ? 'annual' : 'monthly')}
+              disabled={loadingPlan === (isAnnual ? 'pro_annual' : 'pro_monthly')}
               style={{ fontSize: '1.05rem', padding: '14px 24px' }}
             >
-              {loadingPlan === 'pro' ? 'Chargement...' : 'Passer Pro — Activation en 24h'}
+              {loadingPlan?.startsWith('pro') ? 'Chargement...' : 'Passer Pro — Activation en 24h'}
             </button>
           </div>
         </div>

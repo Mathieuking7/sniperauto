@@ -37,3 +37,17 @@ outputType = "webview"
 task = "shell.exec"
 args = "node dashboard.js"
 waitForPort = 5000
+
+[userenv]
+
+[userenv.shared]
+STRIPE_PRICE_ESSENTIEL_MONTHLY = "price_1TKNCIRDI8MdZ3vak3xMrs8u"
+STRIPE_PRICE_ESSENTIEL_ANNUAL = "price_1TKNCIRDI8MdZ3vanRsEZN2I"
+STRIPE_PRICE_PRO_MONTHLY = "price_1TKNCKRDI8MdZ3va10n4O9TZ"
+STRIPE_PRICE_PRO_ANNUAL = "price_1TKNCKRDI8MdZ3vaIz1vz8oX"
+STRIPE_PRICE_SETUP_ESSENTIEL = "price_1TKNCKRDI8MdZ3vadaj7nzh8"
+STRIPE_PRICE_SETUP_PRO = "price_1TKNCLRDI8MdZ3vay2npZmsM"
+STRIPE_WEBHOOK_SECRET = "whsec_6huSoTm863Il4DJUCJUtPXDebivh4rpT"
+FROM_EMAIL = "SniperAuto <onboarding@resend.dev>"
+ADMIN_EMAIL = "sosparebrise34.contact@gmail.com"
+DASHBOARD_PORT = "5000"
