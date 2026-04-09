@@ -37,8 +37,3 @@ outputType = "webview"
 task = "shell.exec"
 args = "node dashboard.js"
 waitForPort = 5000
-
-[userenv]
-
-[userenv.shared]
-DASHBOARD_PORT = "5000"

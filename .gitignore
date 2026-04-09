@@ -1,6 +1,9 @@
 node_modules/
 .env
 auto1.db
+auto1.db-shm
+auto1.db-wal
 auth-state/
 remotion-video/node_modules/
 remotion-video/out/
+logs/

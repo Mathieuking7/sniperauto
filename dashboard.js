@@ -10,7 +10,7 @@ const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const app = express();
-const PORT = process.env.DASHBOARD_PORT || 5000;
+const PORT = process.env.PORT || process.env.DASHBOARD_PORT || 5000;
 
 // Stripe webhook needs raw body — MUST be before express.json()
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
@@ -222,30 +222,10 @@ app.get("/api/events", (req, res) => {
   });
 });
 
-const server = app.listen(PORT, () => {
-  console.log(`\n🖥️  Dashboard: http://localhost:${PORT}`);
-  console.log(`📡 API: http://localhost:${PORT}/api/bots`);
+const server = app.listen(PORT, "0.0.0.0", () => {
+  console.log(`\n🖥️  Dashboard: http://0.0.0.0:${PORT}`);
+  console.log(`📡 API: http://0.0.0.0:${PORT}/api/bots`);
   console.log("");
-});
-
-server.on("error", (err) => {
-  if (err.code === "EADDRINUSE") {
-    console.log(`[Dashboard] Port ${PORT} occupé, tentative de libération...`);
-    try {
-      require("child_process").execSync(`lsof -ti:${PORT} | xargs kill -9 2>/dev/null || true`);
-    } catch (e) { /* ignore */ }
-    setTimeout(() => {
-      const retry = app.listen(PORT, () => {
-        console.log(`\n🖥️  Dashboard: http://localhost:${PORT} (relancé)`);
-      });
-      retry.on("error", (e) => {
-        console.error(`[Dashboard] Impossible de lancer sur port ${PORT}: ${e.message}`);
-        process.exit(1);
-      });
-    }, 3000);
-  } else {
-    throw err;
-  }
 });
 
 // Graceful shutdown
