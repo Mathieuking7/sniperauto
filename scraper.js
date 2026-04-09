@@ -15,7 +15,7 @@ const SEARCH_URL =
     locationName: process.env.SEARCH_LOCATION_NAME || "Vestric-et-Candiac, France",
     page: "1",
     sort: "time",
-    priceMax: process.env.MAX_PRICE || "1000",
+    priceMax: process.env.MAX_PRICE || "2500",
   }).toString();
 
 async function login(page) {
@@ -100,6 +100,7 @@ async function scrapeDeals(page) {
         results.push({
           id,
           title: title || null,
+          url: `https://www.auto1.com/fr/app/merchant/car/${id}`,
           price_auto1: prices[0] ? parseInt(prices[0]) : null,
           current_bid: prices[2] ? parseInt(prices[2]) : null,
           savings: prices[4] ? parseInt(prices[4]) : null,
@@ -121,11 +122,15 @@ async function scrapeDeals(page) {
 
     allDeals.push(...deals);
 
-    // Check for next page
-    const nextBtn = await page.$('a[href*="page=' + (currentPage + 1) + '"]');
-    if (!nextBtn) break;
+    // Check for next page - try multiple selectors
+    const nextBtn = await page.$('a[href*="page=' + (currentPage + 1) + '"], [class*="pagination"] a:has-text("' + (currentPage + 1) + '"), [class*="pagination"] a:has-text("»"), button:has-text("Suivant"), [class*="next"]');
+    if (!nextBtn) {
+      console.log(`[Scraper] Pas de page suivante trouvée après page ${currentPage}`);
+      break;
+    }
 
     currentPage++;
+    console.log(`[Scraper] Navigation vers page ${currentPage}...`);
     const nextUrl = SEARCH_URL.replace("page=1", `page=${currentPage}`);
     await page.goto(nextUrl, { waitUntil: "domcontentloaded", timeout: 30000 });
     await page
@@ -148,7 +153,7 @@ async function scrapeDeals(page) {
       const testDriveResult = await page.evaluate(() => {
         const body = document.body.innerText;
         const idx = body.indexOf("ESSAI ROUTIER");
-        if (idx === -1) return { found: false, section: null, imageUrl: null };
+        if (idx === -1) return { found: false, section: null, imageUrl: null, buyNowPrice: null, currentBid: null };
         // Extract text between ESSAI ROUTIER and RELEVE DE DOMMAGES
         const endIdx = body.indexOf("RELEVE DE DOMMAGES", idx);
         const section = endIdx > -1
@@ -157,7 +162,24 @@ async function scrapeDeals(page) {
         // Get first car image
         const img = document.querySelector('img[src*="img-pa.auto1.com"], img[src*="/pa/"]');
         const imageUrl = img ? img.src : null;
-        return { found: true, section, imageUrl };
+
+        // Get real prices from detail page
+        let buyNowPrice = null;
+        let currentBid = null;
+        const allPrices = document.querySelectorAll('[class*="price"]');
+        for (const el of allPrices) {
+          const text = el.textContent;
+          if (text.includes("fin à l'enchère")) {
+            const m = text.match(/([\d\s.]+)\s*€/);
+            if (m) buyNowPrice = parseInt(m[1].replace(/\D/g, ""));
+          }
+        }
+        // Offre en cours
+        const bodyText = document.body.innerText;
+        const bidMatch = bodyText.match(/Offre en cours:\s*([\d\s.]+)\s*€/);
+        if (bidMatch) currentBid = parseInt(bidMatch[1].replace(/\D/g, ""));
+
+        return { found: true, section, imageUrl, buyNowPrice, currentBid };
       });
 
       if (!testDriveResult.found) {
@@ -183,7 +205,23 @@ async function scrapeDeals(page) {
         }
         console.log(`  -> CLEAN - essai routier OK, année ${yearNum}`);
         deal.test_drive = "clean";
-        deal.imageUrl = testDriveResult.imageUrl;
+        deal.image_url = testDriveResult.imageUrl;
+        deal.url = `https://www.auto1.com/fr/app/merchant/car/${deal.id}`;
+        // Use real "buy now" price from detail page
+        if (testDriveResult.buyNowPrice) {
+          deal.price_auto1 = testDriveResult.buyNowPrice;
+        }
+        if (testDriveResult.currentBid) {
+          deal.current_bid = testDriveResult.currentBid;
+        }
+        console.log(`  -> Prix achat immédiat: ${deal.price_auto1}€ | Enchère en cours: ${deal.current_bid || '?'}€`);
+        // Filter: keep if buy now price OR current bid <= 1500€
+        const MAX_SEND_PRICE = 1500;
+        const lowestPrice = Math.min(deal.price_auto1 || Infinity, deal.current_bid || Infinity);
+        if (lowestPrice > MAX_SEND_PRICE) {
+          console.log(`  -> FILTRÉ: prix ${deal.price_auto1}€ / enchère ${deal.current_bid || '?'}€ > ${MAX_SEND_PRICE}€`);
+          continue;
+        }
         cleanDeals.push(deal);
       } else {
         console.log(`  -> DEFAUTS détectés, filtré`);

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef, useState, useCallback } from 'react'
 
 interface Deal {
   name: string
@@ -11,137 +11,145 @@ interface Deal {
 
 const deals: Deal[] = [
   { name: 'Citroen C5 2.0 HDi Millenium', price: '1 582', details: '05/2011 | 232 638 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/MN87802', time: '09:14', img: 'https://img-pa.auto1.com/img11/c7/11c7d4b9cf96451a8f26af7e909ed5c0/pa/max-MN87802_584a6e5db7f993d7ec0234563871c692.jpg' },
-  { name: 'Peugeot 208 1.0 VTi Like', price: '3 196', details: '04/2015 | 34 605 km\nEssence\nFR', link: 'auto1.com/fr/app/merchant/car/SJ12186', time: '09:15', img: 'https://img-pa.auto1.com/img63/ec/63ec189cb50dad2676587503f00a116f/pa/max-SJ12186_4cd1cffe7d072d67732a02157c4c6625.jpg' },
-  { name: 'Citroen C8 2.0 HDi Millenium', price: '3 464', details: '07/2012 | 161 091 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/VG69945', time: '09:16', img: 'https://img-pa.auto1.com/imgb6/58/b65886f81bb9b3f36b4987e216545bc0/pa/max-VG69945_35835ea6fcdf1969002d2cc65355e23b.jpg' },
-  { name: 'Dacia Duster 1.5 dCi Prestige 4x4', price: '5 416', details: '10/2013 | 187 643 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/GA81486', time: '09:17', img: 'https://img-pa.auto1.com/img10/2c/102cbecb235045b8cbc6dadee85add1b/pa/max-GA81486_a747e55380e6ad226a306ecc98c93d9a.jpg' },
+  { name: 'Peugeot 208 1.0 VTi Like', price: '3 196', details: '04/2015 | 34 605 km\nEssence\nNîmes (30)', link: 'leboncoin.fr/voitures/2847593016.htm', time: '09:15', img: 'https://img-pa.auto1.com/img63/ec/63ec189cb50dad2676587503f00a116f/pa/max-SJ12186_4cd1cffe7d072d67732a02157c4c6625.jpg' },
+  { name: 'Citroen C8 2.0 HDi Millenium', price: '3 464', details: '07/2012 | 161 091 km\nDiesel\nFR', link: 'facebook.com/marketplace/item/8274619503', time: '09:16', img: 'https://img-pa.auto1.com/imgb6/58/b65886f81bb9b3f36b4987e216545bc0/pa/max-VG69945_35835ea6fcdf1969002d2cc65355e23b.jpg' },
+  { name: 'Dacia Duster 1.5 dCi Prestige 4x4', price: '5 416', details: '10/2013 | 187 643 km\nDiesel\nMontpellier (34)', link: 'aramisauto.com/annonce/dacia-duster-294817', time: '09:17', img: 'https://img-pa.auto1.com/img10/2c/102cbecb235045b8cbc6dadee85add1b/pa/max-GA81486_a747e55380e6ad226a306ecc98c93d9a.jpg' },
   { name: 'Peugeot Partner 1.6 Blue-HDi Outdoor', price: '6 044', details: '04/2016 | 162 555 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/WM37094', time: '09:18', img: 'https://img-pa.auto1.com/imga5/e6/a5e6b7c80c782f67ff3d9495e92d90bd/pa/max-WM37094_3e965d79d538ae3a0f3af9c8076e0b37.jpg' },
-  { name: 'Renault Kadjar 1.6 dCi Energy Intens', price: '6 319', details: '05/2016 | 218 681 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/RV03632', time: '09:19', img: 'https://img-pa.auto1.com/imge6/80/e6806fcaec8b4df3249304b0798adf9d/pa/max-RV03632_912dde2459f7eda68a430aaeb305a9fb.jpg' },
-  { name: 'Citroen C4 Grand Spacetourer 1.5 Blue-HDi', price: '6 448', details: '11/2019 | 162 089 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/PK17829', time: '09:20', img: 'https://img-pa.auto1.com/img15/36/15362a156936a7cf07ea2c5cc911e72b/pa/max-PK17829_e00a0fd2029044b5ebf849f07196f047.jpg' },
+  { name: 'Renault Kadjar 1.6 dCi Energy Intens', price: '6 319', details: '05/2016 | 218 681 km\nDiesel\nAvignon (84)', link: 'leboncoin.fr/voitures/2851204738.htm', time: '09:19', img: 'https://img-pa.auto1.com/imge6/80/e6806fcaec8b4df3249304b0798adf9d/pa/max-RV03632_912dde2459f7eda68a430aaeb305a9fb.jpg' },
+  { name: 'Citroen C4 Grand Spacetourer 1.5 Blue-HDi', price: '6 448', details: '11/2019 | 162 089 km\nDiesel\nFR', link: 'facebook.com/marketplace/item/6193847205', time: '09:20', img: 'https://img-pa.auto1.com/img15/36/15362a156936a7cf07ea2c5cc911e72b/pa/max-PK17829_e00a0fd2029044b5ebf849f07196f047.jpg' },
   { name: 'Mitsubishi ASX 1.6 Challenge 2WD', price: '6 524', details: '01/2015 | 110 351 km\nEssence\nFR', link: 'auto1.com/fr/app/merchant/car/SM21552', time: '09:21', img: 'https://img-pa.auto1.com/img6f/9c/6f9cee4e6093c808d1315e229328ce2f/pa/max-SM21552_58150f2db5fdd782350b79a37722f55b.jpg' },
-  { name: 'Audi TT 2.0 TFSI Roadster', price: '7 046', details: '04/2013 | 181 162 km\nEssence\nFR', link: 'auto1.com/fr/app/merchant/car/FH05112', time: '09:22', img: 'https://img-pa.auto1.com/imgf5/e6/f5e62ae13f69f6276ab839c7142a5cd6/pa/max-FH05112_b6bda7d1b0950517ab44ff85e0791a8d.jpg' },
-  { name: 'Mercedes E 200 CDI BlueEfficiency', price: '8 317', details: '11/2013 | 394 275 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/NN81936', time: '09:23', img: 'https://img-pa.auto1.com/imge2/15/e2158ab5dbcc13c5ba9f2bdd5b280276/pa/max-NN81936_5590948a97c4a70e10fef052f1bca6e1.jpg' },
-  { name: 'Hyundai Kona 1.0 TGDI Klass 2WD', price: '9 680', details: '08/2018 | 139 022 km\nEssence\nFR', link: 'auto1.com/fr/app/merchant/car/TY10266', time: '09:24', img: 'https://img-pa.auto1.com/img11/47/11474941a9ff0ecf188857c66d9a6cac/pa/max-TY10266_731881b98c6c88c2979a884687eee158.jpg' },
+  { name: 'Audi TT 2.0 TFSI Roadster', price: '7 046', details: '04/2013 | 181 162 km\nEssence\nAix-en-Provence (13)', link: 'aramisauto.com/annonce/audi-tt-318742', time: '09:22', img: 'https://img-pa.auto1.com/imgf5/e6/f5e62ae13f69f6276ab839c7142a5cd6/pa/max-FH05112_b6bda7d1b0950517ab44ff85e0791a8d.jpg' },
+  { name: 'Mercedes E 200 CDI BlueEfficiency', price: '8 317', details: '11/2013 | 394 275 km\nDiesel\nBéziers (34)', link: 'leboncoin.fr/voitures/2849017523.htm', time: '09:23', img: 'https://img-pa.auto1.com/imge2/15/e2158ab5dbcc13c5ba9f2bdd5b280276/pa/max-NN81936_5590948a97c4a70e10fef052f1bca6e1.jpg' },
+  { name: 'Hyundai Kona 1.0 TGDI Klass 2WD', price: '9 680', details: '08/2018 | 139 022 km\nEssence\nFR', link: 'facebook.com/marketplace/item/4829175630', time: '09:24', img: 'https://img-pa.auto1.com/img11/47/11474941a9ff0ecf188857c66d9a6cac/pa/max-TY10266_731881b98c6c88c2979a884687eee158.jpg' },
   { name: 'Ford Transit 2.2 TDCi 310 L2 Limited', price: '10 349', details: '04/2014 | 279 211 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/WA34447', time: '09:25', img: 'https://img-pa.auto1.com/img95/a3/95a3936a65381c09466b6a91dfd4c962/pa/max-WA34447_8bd45c35efaf43cb8a5155481fcc5597.jpg' },
-  { name: 'Audi A3 Sportback 35 TDI S line', price: '14 967', details: '12/2018 | 169 578 km\nDiesel\nFR', link: 'auto1.com/fr/app/merchant/car/LH80416', time: '09:26', img: 'https://img-pa.auto1.com/img05/46/05465cf0652f78b4a59d8e79385b2b1f/pa/max-LH80416_110282b0e5de694cc4346d59599dd77a.jpg' },
-  { name: 'Audi Q2 1.4 TFSI ACT Sport', price: '16 985', details: '06/2018 | 94 498 km\nEssence\nFR', link: 'auto1.com/fr/app/merchant/car/RL90711', time: '09:27', img: 'https://img-pa.auto1.com/img01/83/018350fb6b15516fa590552099340718/pa/max-RL90711_ef5856d8a2e957de9c6699b3d56af275.jpg' },
-  { name: 'Hyundai i30 2.0 TGDI N Performance', price: '19 015', details: '12/2019 | 96 325 km\nEssence\nFR', link: 'auto1.com/fr/app/merchant/car/EY76517', time: '09:28', img: 'https://img-pa.auto1.com/imge3/70/e3705a0ee270d49549869c1d7c220106/pa/max-EY76517_e430779f8c912f07365270190ee6c8fd.jpg' },
+  { name: 'Audi A3 Sportback 35 TDI S line', price: '14 967', details: '12/2018 | 169 578 km\nDiesel\nMarseille (13)', link: 'aramisauto.com/annonce/audi-a3-402851', time: '09:26', img: 'https://img-pa.auto1.com/img05/46/05465cf0652f78b4a59d8e79385b2b1f/pa/max-LH80416_110282b0e5de694cc4346d59599dd77a.jpg' },
+  { name: 'Audi Q2 1.4 TFSI ACT Sport', price: '16 985', details: '06/2018 | 94 498 km\nEssence\nSète (34)', link: 'leboncoin.fr/voitures/2853891047.htm', time: '09:27', img: 'https://img-pa.auto1.com/img01/83/018350fb6b15516fa590552099340718/pa/max-RL90711_ef5856d8a2e957de9c6699b3d56af275.jpg' },
+  { name: 'Hyundai i30 2.0 TGDI N Performance', price: '19 015', details: '12/2019 | 96 325 km\nEssence\nFR', link: 'facebook.com/marketplace/item/7351928460', time: '09:28', img: 'https://img-pa.auto1.com/imge3/70/e3705a0ee270d49549869c1d7c220106/pa/max-EY76517_e430779f8c912f07365270190ee6c8fd.jpg' },
 ]
 
-function animateCount(el: HTMLElement, target: number, duration: number) {
-  if ((el as HTMLElement & { dataset: DOMStringMap }).dataset.animated) return
-  ;(el as HTMLElement & { dataset: DOMStringMap }).dataset.animated = '1'
-  const start = performance.now()
-  const fmt = (n: number) => n.toLocaleString('fr-FR')
-  function tick(now: number) {
-    const p = Math.min((now - start) / duration, 1)
-    const ease = 1 - Math.pow(1 - p, 3)
-    el.textContent = fmt(Math.floor(ease * target))
-    if (p < 1) requestAnimationFrame(tick)
-    else el.textContent = fmt(target)
-  }
-  requestAnimationFrame(tick)
+const MAX_VISIBLE = 3
+
+function WaMessage({ deal, visible }: { deal: Deal; visible: boolean }) {
+  return (
+    <div
+      className="wa-message show"
+      style={{
+        transition: 'opacity 0.4s ease, transform 0.4s ease',
+        opacity: visible ? 1 : 0,
+        transform: visible ? 'translateY(0)' : 'translateY(-10px)',
+      }}
+    >
+      <div className="car-img" style={{ backgroundImage: `url('${deal.img}')` }} />
+      <div className="msg-body">
+        <div className="wa-alert">🚨 Nouveau deal disponible</div>
+        <div className="car-name">{deal.name}</div>
+        <div className="car-price-line">
+          <span className="car-price-label">Prix: </span>
+          <span className="car-price">{deal.price}&euro;</span>
+        </div>
+        <div className="car-details">
+          {deal.details.split('\n').map((line, i) => (
+            <span key={i}>{line}{i < deal.details.split('\n').length - 1 && <br />}</span>
+          ))}
+        </div>
+        <div className="car-link">https://www.{deal.link}</div>
+      </div>
+      <div className="wa-meta">
+        <span className="wa-time">{deal.time}</span>
+        <span className="wa-ticks">
+          <svg width="16" height="11" viewBox="0 0 16 11" fill="none">
+            <path d="M1.5 5.5l3 3L11.5 1.5" stroke="#53bdeb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+            <path d="M5.5 5.5l3 3L15.5 1.5" stroke="#53bdeb" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" />
+          </svg>
+        </span>
+      </div>
+    </div>
+  )
+}
+
+function WaTyping() {
+  return (
+    <div className="wa-typing show">
+      <span /><span /><span />
+    </div>
+  )
 }
 
 export default function Hero() {
   const chatRef = useRef<HTMLDivElement>(null)
-  const waTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
   const counterRef = useRef<HTMLDivElement>(null)
+  const [visibleDeals, setVisibleDeals] = useState<number[]>([])
+  const [showTyping, setShowTyping] = useState(false)
+  const stepRef = useRef(0)
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
+  // Counter animation
   useEffect(() => {
-    if (counterRef.current) {
-      setTimeout(() => animateCount(counterRef.current!, 2847, 2000), 800)
+    if (!counterRef.current) return
+    const el = counterRef.current
+    const target = 2847
+    const duration = 2000
+    const start = performance.now()
+    const fmt = (n: number) => n.toLocaleString('fr-FR')
+    let running = true
+    function tick(now: number) {
+      if (!running) return
+      const p = Math.min((now - start) / duration, 1)
+      const ease = 1 - Math.pow(1 - p, 3)
+      el.textContent = fmt(Math.floor(ease * target))
+      if (p < 1) requestAnimationFrame(tick)
+      else el.textContent = fmt(target)
     }
+    const t = setTimeout(() => requestAnimationFrame(tick), 800)
+    return () => { running = false; clearTimeout(t) }
+  }, [])
+
+  // Scroll to bottom when messages change
+  useEffect(() => {
+    if (chatRef.current) {
+      chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' })
+    }
+  }, [visibleDeals, showTyping])
+
+  // WhatsApp animation loop
+  const addNextDeal = useCallback(() => {
+    const currentStep = stepRef.current
+
+    if (currentStep >= deals.length) {
+      // Reset: fade out, then restart
+      timerRef.current = setTimeout(() => {
+        setVisibleDeals([])
+        setShowTyping(false)
+        stepRef.current = 0
+        timerRef.current = setTimeout(() => addNextDeal(), 1000)
+      }, 3500)
+      return
+    }
+
+    // Show typing
+    setShowTyping(true)
+
+    timerRef.current = setTimeout(() => {
+      // Hide typing, add message
+      setShowTyping(false)
+      setVisibleDeals(prev => {
+        const next = [...prev, currentStep]
+        // Keep only last MAX_VISIBLE
+        return next.slice(-MAX_VISIBLE)
+      })
+      stepRef.current = currentStep + 1
+
+      // Schedule next
+      timerRef.current = setTimeout(() => addNextDeal(), 2000)
+    }, 1200)
   }, [])
 
   useEffect(() => {
-    const chat = chatRef.current
-    if (!chat) return
-
-    function scrollToBottom() {
-      chat!.scrollTo({ top: chat!.scrollHeight, behavior: 'smooth' })
-    }
-
-    function createTyping(): HTMLDivElement {
-      const t = document.createElement('div')
-      t.className = 'wa-typing'
-      t.innerHTML = '<span></span><span></span><span></span>'
-      return t
-    }
-
-    function createMessage(deal: Deal): HTMLDivElement {
-      const m = document.createElement('div')
-      m.className = 'wa-message'
-      m.innerHTML = `
-        <div class="car-img" style="background-image:url('${deal.img}')"></div>
-        <div class="msg-body">
-          <div class="wa-alert">🚨 Nouveau deal disponible</div>
-          <div class="car-name">${deal.name}</div>
-          <div class="car-price-line"><span class="car-price-label">Prix: </span><span class="car-price">${deal.price}\u20AC</span></div>
-          <div class="car-details">${deal.details.replace(/\n/g, '<br>')}</div>
-          <div class="car-link">https://www.${deal.link}</div>
-        </div>
-        <div class="wa-meta">
-          <span class="wa-time">${deal.time}</span>
-          <span class="wa-ticks"><svg width="16" height="11" viewBox="0 0 16 11" fill="none"><path d="M1.5 5.5l3 3L11.5 1.5" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M5.5 5.5l3 3L15.5 1.5" stroke="#53bdeb" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
-        </div>
-      `
-      return m
-    }
-
-    function runWaAnimation() {
-      if (waTimeoutRef.current) clearTimeout(waTimeoutRef.current)
-      while (chat!.firstChild) chat!.removeChild(chat!.firstChild)
-      chat!.scrollTop = 0
-      chat!.style.transition = 'none'
-      chat!.style.opacity = '1'
-
-      let step = 0
-      const totalDeals = deals.length
-
-      function next() {
-        if (step >= totalDeals) {
-          waTimeoutRef.current = setTimeout(() => {
-            chat!.style.transition = 'opacity 0.5s'
-            chat!.style.opacity = '0'
-            waTimeoutRef.current = setTimeout(() => {
-              chat!.style.transition = 'none'
-              chat!.style.opacity = '1'
-              runWaAnimation()
-            }, 600)
-          }, 3500)
-          return
-        }
-
-        const typing = createTyping()
-        chat!.appendChild(typing)
-        requestAnimationFrame(() => {
-          typing.classList.add('show')
-          scrollToBottom()
-        })
-
-        waTimeoutRef.current = setTimeout(() => {
-          if (typing.parentNode) typing.parentNode.removeChild(typing)
-          const msg = createMessage(deals[step])
-          chat!.appendChild(msg)
-          requestAnimationFrame(() => {
-            msg.classList.add('show')
-            setTimeout(scrollToBottom, 50)
-            setTimeout(scrollToBottom, 350)
-          })
-          step++
-          waTimeoutRef.current = setTimeout(next, 2000)
-        }, 1200)
-      }
-
-      waTimeoutRef.current = setTimeout(next, 800)
-    }
-
-    runWaAnimation()
-
+    timerRef.current = setTimeout(() => addNextDeal(), 800)
     return () => {
-      if (waTimeoutRef.current) clearTimeout(waTimeoutRef.current)
+      if (timerRef.current) clearTimeout(timerRef.current)
     }
-  }, [])
+  }, [addNextDeal])
 
   return (
     <section className="hero">
@@ -156,7 +164,7 @@ export default function Hero() {
           <div className="hero-text">
             <div className="hero-badge"><span className="dot"></span> Surveillance en temps réel</div>
             <h1>Trouvez les <span className="gradient">meilleures affaires</span> avant tout le monde.</h1>
-            <p className="tagline">SniperAuto surveille Auto1 24h/24 et vous alerte instantanément sur WhatsApp dès que la perle rare apparaît.</p>
+            <p className="tagline">SniperAuto surveille Auto1, Le Bon Coin, Facebook Marketplace, Aramis Auto Pro et bien d'autres 24h/24 — et vous alerte instantanément sur WhatsApp dès qu'une bonne affaire apparaît.</p>
 
             <div className="loss-counter">
               <div className="big-number" ref={counterRef}>0</div>
@@ -202,7 +210,12 @@ export default function Hero() {
                     <svg viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round"><path d="M9 18l6-6-6-6" /></svg>
                   </div>
                 </div>
-                <div className="wa-chat" ref={chatRef}></div>
+                <div className="wa-chat" ref={chatRef}>
+                  {visibleDeals.map((dealIdx) => (
+                    <WaMessage key={dealIdx} deal={deals[dealIdx]} visible={true} />
+                  ))}
+                  {showTyping && <WaTyping />}
+                </div>
                 <div className="wa-input-bar">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#007AFF" strokeWidth="2" strokeLinecap="round"><line x1="12" y1="5" x2="12" y2="19" /><line x1="5" y1="12" x2="19" y2="12" /></svg>
                   <div className="wa-input-wrap">

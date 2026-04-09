@@ -222,10 +222,30 @@ app.get("/api/events", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+const server = app.listen(PORT, () => {
   console.log(`\n🖥️  Dashboard: http://localhost:${PORT}`);
   console.log(`📡 API: http://localhost:${PORT}/api/bots`);
   console.log("");
+});
+
+server.on("error", (err) => {
+  if (err.code === "EADDRINUSE") {
+    console.log(`[Dashboard] Port ${PORT} occupé, tentative de libération...`);
+    try {
+      require("child_process").execSync(`lsof -ti:${PORT} | xargs kill -9 2>/dev/null || true`);
+    } catch (e) { /* ignore */ }
+    setTimeout(() => {
+      const retry = app.listen(PORT, () => {
+        console.log(`\n🖥️  Dashboard: http://localhost:${PORT} (relancé)`);
+      });
+      retry.on("error", (e) => {
+        console.error(`[Dashboard] Impossible de lancer sur port ${PORT}: ${e.message}`);
+        process.exit(1);
+      });
+    }, 3000);
+  } else {
+    throw err;
+  }
 });
 
 // Graceful shutdown

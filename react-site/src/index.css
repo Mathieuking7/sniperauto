@@ -68,6 +68,28 @@ body {
   0%, 100% { transform: scale(1); opacity: 1; }
   50% { transform: scale(1.15); opacity: 0.7; }
 }
+@keyframes logo-sweep {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+@keyframes logo-outer-pulse {
+  0%, 100% { opacity: 1; stroke-width: 1.5; }
+  50% { opacity: 0.5; stroke-width: 1; }
+}
+@keyframes logo-scan-ring {
+  0% { r: 8; opacity: 0.6; }
+  80% { r: 14; opacity: 0; }
+  100% { r: 14; opacity: 0; }
+}
+@keyframes logo-dot-pulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.4); opacity: 0.8; }
+}
+@keyframes logo-dot-halo {
+  0% { r: 2.5; opacity: 0.5; }
+  70% { r: 6; opacity: 0; }
+  100% { r: 6; opacity: 0; }
+}
 @keyframes scaleIn {
   from { opacity: 0; transform: scale(0.92); }
   to { opacity: 1; transform: scale(1); }
@@ -537,8 +559,7 @@ section {
   max-width: 88%;
   margin-left: auto;
   flex-shrink: 0;
-  opacity: 0;
-  transform: translateY(12px) scale(0.97);
+  opacity: 1;
   word-break: break-word;
   box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
   overflow: hidden;
@@ -554,7 +575,7 @@ section {
   border-bottom: 7px solid transparent;
 }
 .wa-message.show {
-  animation: wa-slide-in 0.35s var(--transition) forwards;
+  animation: none;
 }
 .wa-message .car-img {
   width: 100%;
@@ -618,8 +639,7 @@ section {
   align-items: center;
   width: fit-content;
   flex-shrink: 0;
-  opacity: 0;
-  transform: translateY(8px);
+  opacity: 1;
   box-shadow: 0 1px 0.5px rgba(0,0,0,0.13);
   position: relative;
 }
@@ -633,7 +653,7 @@ section {
   border-bottom: 7px solid transparent;
 }
 .wa-typing.show {
-  animation: wa-slide-in 0.25s var(--transition) forwards;
+  animation: none;
 }
 .wa-typing span {
   width: 7px; height: 7px;

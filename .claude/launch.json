@@ -9,9 +9,10 @@
     },
     {
       "name": "dealradar",
-      "runtimeExecutable": "sh",
-      "runtimeArgs": ["-c", "cd /Users/mathieugaillac/test/auto1-monitor/react-site && npm run dev -- --port 5173"],
-      "port": 5173
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev"],
+      "cwd": "/Users/mathieugaillac/test/auto1-monitor/react-site",
+      "port": 5174
     }
   ]
 }

@@ -9,7 +9,7 @@ function getChatId() {
   return GROUP_ID || `${process.env.WHATSAPP_PHONE}@c.us`;
 }
 
-async function sendWhatsApp(message) {
+async function sendWhatsApp(message, customChatId) {
   if (!INSTANCE_ID || !API_TOKEN) {
     console.log("[WhatsApp] Config manquante, message en console:");
     console.log(message);
@@ -20,7 +20,7 @@ async function sendWhatsApp(message) {
   const res = await fetch(url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chatId: getChatId(), message }),
+    body: JSON.stringify({ chatId: customChatId || getChatId(), message }),
   });
 
   if (!res.ok) {
@@ -31,7 +31,7 @@ async function sendWhatsApp(message) {
   return true;
 }
 
-async function sendWhatsAppWithImage(imageUrl, caption) {
+async function sendWhatsAppWithImage(imageUrl, caption, customChatId) {
   if (!INSTANCE_ID || !API_TOKEN) {
     console.log("[WhatsApp] Config manquante, message en console:");
     console.log(caption);
@@ -43,7 +43,7 @@ async function sendWhatsAppWithImage(imageUrl, caption) {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
-      chatId: getChatId(),
+      chatId: customChatId || getChatId(),
       urlFile: imageUrl,
       fileName: "car.jpg",
       caption,
@@ -52,7 +52,7 @@ async function sendWhatsAppWithImage(imageUrl, caption) {
 
   if (!res.ok) {
     console.error(`[WhatsApp] Erreur image ${res.status}: ${await res.text()}`);
-    return sendWhatsApp(caption);
+    return sendWhatsApp(caption, customChatId);
   }
   console.log("[WhatsApp] Message avec image envoyé");
   return true;
@@ -62,11 +62,11 @@ function formatDealMessage(deal) {
   const lines = [`*${deal.title}*`, ""];
 
   // Prix
-  if (deal.current_bid && deal.price_auto1) {
-    lines.push(`Prix: *${deal.current_bid}€* (au lieu de ${deal.price_auto1}€)`);
-    if (deal.savings) lines.push(`Economie: ${deal.savings}€`);
-  } else if (deal.price_auto1) {
-    lines.push(`Prix: *${deal.price_auto1}€*`);
+  if (deal.price_auto1) {
+    lines.push(`🏷️ Achat immédiat: *${deal.price_auto1}€*`);
+  }
+  if (deal.current_bid) {
+    lines.push(`💰 Enchère en cours: *${deal.current_bid}€*`);
   }
 
   lines.push("");

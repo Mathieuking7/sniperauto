@@ -60,7 +60,11 @@ async function runLeboncoinScraper(config) {
           const imgEl = item.querySelector("img[src]");
           const imageUrl = imgEl ? imgEl.src : null;
 
-          results.push({ id, title, price, priceText, location, date, url: href, imageUrl });
+          // Detect if Pro listing
+          const proEl = item.querySelector('[data-qa-id="aditem_owner_type"], [class*="Pro"], span:has-text("Pro")');
+          const isPro = proEl ? proEl.textContent.includes("Pro") : false;
+
+          results.push({ id, title, price, priceText, location, date, url: href, imageUrl, isPro });
         } catch (e) {
           // skip bad item
         }
@@ -85,6 +89,11 @@ async function runLeboncoinScraper(config) {
         const text = (a.title + " " + a.location).toLowerCase();
         return filters.keywords.some((kw) => text.includes(kw.toLowerCase()));
       });
+    }
+    // Filter out Pro listings if requested
+    if (filters.privateOnly) {
+      filtered = filtered.filter((a) => !a.isPro);
+      console.log(`[LBC] ${filtered.length} annonces après filtre particuliers`);
     }
     if (filters.excludeKeywords && filters.excludeKeywords.length > 0) {
       filtered = filtered.filter((a) => {

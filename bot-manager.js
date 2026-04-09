@@ -9,7 +9,11 @@ const { EventEmitter } = require("events");
 
 const { runScraper: runAuto1Scraper } = require("./scraper");
 const { runLeboncoinScraper } = require("./bots/leboncoin");
+const { runAramisScraper } = require("./bots/aramis");
+const { runLaCentraleScraper } = require("./bots/lacentrale");
+const { runFacebookScraper } = require("./bots/facebook");
 const { sendWhatsApp, sendWhatsAppWithImage, formatDealMessage } = require("./whatsapp");
+const { filterValidDeals } = require("./ad-validator");
 
 const DB_PATH = path.join(__dirname, "auto1.db");
 
@@ -90,6 +94,30 @@ class BotManager extends EventEmitter {
       this._createDefaultAuto1();
     }
 
+    // Ensure Aramis bot exists
+    const hasAramis = bots.some((b) => b.id === "aramis");
+    if (!hasAramis) {
+      this._createDefaultAramis();
+    }
+
+    // Ensure La Centrale bot exists
+    const hasLC = this.db.prepare("SELECT id FROM bots WHERE id = 'lacentrale'").get();
+    if (!hasLC) {
+      this._createDefaultLaCentrale();
+    }
+
+    // Ensure Facebook Marketplace bot exists
+    const hasFB = this.db.prepare("SELECT id FROM bots WHERE id = 'facebook'").get();
+    if (!hasFB) {
+      this._createDefaultFacebook();
+    }
+
+    // Ensure LeBonCoin bot exists
+    const hasLBC = this.db.prepare("SELECT id FROM bots WHERE id = 'leboncoin'").get();
+    if (!hasLBC) {
+      this._createDefaultLeBonCoin();
+    }
+
     // Reload
     const allBots = this.db.prepare("SELECT * FROM bots").all();
     for (const bot of allBots) {
@@ -110,6 +138,46 @@ class BotManager extends EventEmitter {
     `).run(
       "https://www.auto1.com/fr/app/merchant/cars",
       JSON.stringify({ maxPrice: 1000, minYear: 2002, cleanTestDrive: true })
+    );
+  }
+
+  _createDefaultAramis() {
+    this.db.prepare(`
+      INSERT OR IGNORE INTO bots (id, type, name, url, enabled, cron_schedule, filters)
+      VALUES ('aramis', 'aramis', '🚗 Aramis Pro', ?, 1, '*/30 10-16 * * *', ?)
+    `).run(
+      "https://pro.aramisauto.com/cars",
+      JSON.stringify({})
+    );
+  }
+
+  _createDefaultLaCentrale() {
+    this.db.prepare(`
+      INSERT OR IGNORE INTO bots (id, type, name, url, enabled, cron_schedule, filters)
+      VALUES ('lacentrale', 'lacentrale', '🚘 La Centrale - Nîmes 20km', ?, 1, '*/30 10-16 * * *', ?)
+    `).run(
+      "https://www.lacentrale.fr/listing?makesModelsCommercialNames=&options=&page=1&priceMin=10000&priceMax=20000&sortBy=firstOnlineDateDesc",
+      JSON.stringify({ minPrice: 10000, maxPrice: 20000, location: "Nîmes", distance: 20 })
+    );
+  }
+
+  _createDefaultFacebook() {
+    this.db.prepare(`
+      INSERT OR IGNORE INTO bots (id, type, name, url, enabled, cron_schedule, filters)
+      VALUES ('facebook', 'facebook', '📘 Facebook Marketplace - Nîmes 20km', ?, 1, '*/30 10-16 * * *', ?)
+    `).run(
+      "https://www.facebook.com/marketplace/nimes/vehicles?minPrice=10000&maxPrice=20000&radius=20&latitude=43.8367&longitude=4.3601&sortBy=creation_time_descend&exact=false",
+      JSON.stringify({ minPrice: 10000, maxPrice: 20000, distance: 20, lat: "43.8367", lng: "4.3601" })
+    );
+  }
+
+  _createDefaultLeBonCoin() {
+    this.db.prepare(`
+      INSERT OR IGNORE INTO bots (id, type, name, url, enabled, cron_schedule, filters)
+      VALUES ('leboncoin', 'leboncoin', '🏷️ LeBonCoin - Nîmes 20km', ?, 1, '*/30 10-16 * * *', ?)
+    `).run(
+      "https://www.leboncoin.fr/recherche?category=2&locations=Nîmes__43.8367_4.3601_20000&price=10000-20000&sort=time&owner_type=private",
+      JSON.stringify({ minPrice: 10000, maxPrice: 20000 })
     );
   }
 
@@ -221,7 +289,16 @@ class BotManager extends EventEmitter {
         deals = await runAuto1Scraper();
       } else if (bot.type === "leboncoin") {
         deals = await runLeboncoinScraper({ url: bot.url, filters: bot.filters });
+      } else if (bot.type === "aramis") {
+        deals = await runAramisScraper({ url: bot.url, filters: bot.filters });
+      } else if (bot.type === "lacentrale") {
+        deals = await runLaCentraleScraper({ url: bot.url, filters: bot.filters });
+      } else if (bot.type === "facebook") {
+        deals = await runFacebookScraper({ url: bot.url, filters: bot.filters });
       }
+
+      // Validate deals before storing
+      deals = filterValidDeals(deals, bot.name);
 
       // Upsert deals
       let newCount = 0;
@@ -264,13 +341,16 @@ class BotManager extends EventEmitter {
 
       let notifiedCount = 0;
       if (unnotified.length > 0) {
+        // Route to correct WhatsApp group
+        const chatId = this._getChatId(bot);
+
         for (const deal of unnotified) {
           const msg = this._formatMessage(deal, bot);
           const imgUrl = deal.image_url;
           if (imgUrl) {
-            await sendWhatsAppWithImage(imgUrl, msg);
+            await sendWhatsAppWithImage(imgUrl, msg, chatId);
           } else {
-            await sendWhatsApp(msg);
+            await sendWhatsApp(msg, chatId);
           }
           notifiedCount++;
           await new Promise((r) => setTimeout(r, 2000));
@@ -315,24 +395,85 @@ class BotManager extends EventEmitter {
     }
   }
 
+  _getChatId(bot) {
+    const GROUP_MAP = {
+      aramis: process.env.WHATSAPP_GROUP_ID_ARAMIS,
+      auto1: process.env.WHATSAPP_GROUP_ID,
+      leboncoin: process.env.WHATSAPP_GROUP_ID,
+      lacentrale: process.env.WHATSAPP_GROUP_ID,
+      facebook: process.env.WHATSAPP_GROUP_ID,
+    };
+    return GROUP_MAP[bot.type] || process.env.WHATSAPP_GROUP_ID || null;
+  }
+
   _formatMessage(deal, bot) {
     if (bot.type === "auto1") {
       return formatDealMessage(deal);
     }
 
+    if (bot.type === "aramis") {
+      const lines = [];
+      lines.push(`🏎️ *${deal.title}*`);
+      lines.push("");
+      if (deal.price_auto1) lines.push(`💰 *${deal.price_auto1.toLocaleString("fr-FR")}€*`);
+      if (deal.km) lines.push(`📏 ${deal.km.toLocaleString("fr-FR")} km`);
+      if (deal.year) lines.push(`📅 ${deal.year}`);
+      if (deal.location) lines.push(`📍 ${deal.location}`);
+      lines.push("");
+      if (deal.url) lines.push(`🔗 ${deal.url}`);
+      lines.push("\n_Via Aramis Pro_");
+      return lines.join("\n");
+    }
+
+    if (bot.type === "lacentrale") {
+      const lines = [];
+      lines.push(`🚘 *${deal.title}*`);
+      lines.push("");
+      if (deal.price_auto1) lines.push(`💰 *${deal.price_auto1.toLocaleString("fr-FR")}€*`);
+      const details = [];
+      if (deal.year) details.push(deal.year);
+      if (deal.km) details.push(`${deal.km.toLocaleString("fr-FR")} km`);
+      if (details.length) lines.push(`📅 ${details.join(" | ")}`);
+      if (deal.fuel) lines.push(`⛽ ${deal.fuel}`);
+      if (deal.gearbox) lines.push(`⚙️ ${deal.gearbox}`);
+      if (deal.location) lines.push(`📍 ${deal.location}`);
+      lines.push("");
+      if (deal.url) lines.push(`🔗 ${deal.url}`);
+      lines.push("\n_Via La Centrale_");
+      return lines.join("\n");
+    }
+
+    if (bot.type === "facebook") {
+      const lines = [];
+      lines.push(`📘 *${deal.title}*`);
+      lines.push("");
+      if (deal.price_auto1) lines.push(`💰 *${deal.price_auto1.toLocaleString("fr-FR")}€*`);
+      const details = [];
+      if (deal.year) details.push(deal.year);
+      if (deal.km) details.push(`${deal.km.toLocaleString("fr-FR")} km`);
+      if (details.length) lines.push(`📅 ${details.join(" | ")}`);
+      if (deal.location) lines.push(`📍 ${deal.location}`);
+      lines.push("");
+      if (deal.url) lines.push(`🔗 ${deal.url}`);
+      lines.push("\n_Via Facebook Marketplace_");
+      return lines.join("\n");
+    }
+
     // Le Bon Coin format
     const lines = [];
-    const emoji = "🏷️";
-    lines.push(`${emoji} *${deal.title}*`);
+    lines.push(`🏷️ *${deal.title}*`);
     lines.push("");
 
     if (deal.price_auto1) {
-      lines.push(`💰 *${deal.price_auto1}€*`);
+      lines.push(`💰 *${deal.price_auto1.toLocaleString("fr-FR")}€*`);
     }
+    if (deal.km) lines.push(`📏 ${deal.km.toLocaleString("fr-FR")} km`);
+    if (deal.year) lines.push(`📅 ${deal.year}`);
     if (deal.location) lines.push(`📍 ${deal.location}`);
     if (deal.auction_end) lines.push(`🕐 ${deal.auction_end}`);
     lines.push("");
-    if (deal.url) lines.push(deal.url);
+    if (deal.url) lines.push(`🔗 ${deal.url}`);
+    lines.push("\n_Via LeBonCoin_");
     return lines.join("\n");
   }
 
