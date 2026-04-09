@@ -75,6 +75,17 @@ class BotManager extends EventEmitter {
         error TEXT,
         duration_ms INTEGER
       );
+
+      CREATE TABLE IF NOT EXISTS subscribers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        email TEXT NOT NULL,
+        stripe_customer_id TEXT,
+        stripe_subscription_id TEXT,
+        plan TEXT,
+        billing TEXT,
+        status TEXT DEFAULT 'active',
+        created_at TEXT DEFAULT (datetime('now'))
+      );
     `);
 
     // Ensure bot_id column exists in deals

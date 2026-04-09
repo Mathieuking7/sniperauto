@@ -8,6 +8,7 @@ import DealsRates from './components/DealsRates'
 import Pricing from './components/Pricing'
 import Testimonials from './components/Testimonials'
 import FAQ from './components/FAQ'
+import Contact from './components/Contact'
 import CTASection from './components/CTASection'
 import Footer from './components/Footer'
 
@@ -47,6 +48,7 @@ export default function App() {
       <Pricing />
       <Testimonials />
       <FAQ />
+      <Contact />
       <CTASection />
       <Footer />
     </>

@@ -120,7 +120,7 @@ export default function Marketplaces() {
           <div style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>+</div>
           <div style={{ fontWeight: 700, fontSize: '1.1rem', marginBottom: '0.5rem' }}>Une autre plateforme en tête ?</div>
           <p style={{ color: '#666', fontSize: '0.95rem', marginBottom: '1rem', maxWidth: '400px', marginLeft: 'auto', marginRight: 'auto' }}>Vous souhaitez surveiller une plateforme qui n'est pas dans la liste ? Contactez-nous — tout est possible.</p>
-          <a href="#pricing" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', padding: '0.7rem 1.5rem' }}>
+          <a href="#contact" className="btn-primary" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px', fontSize: '0.95rem', padding: '0.7rem 1.5rem' }}>
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M22 2L11 13" /><path d="M22 2L15 22L11 13L2 9L22 2Z" /></svg>
             Nous contacter
           </a>
