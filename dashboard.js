@@ -228,6 +228,14 @@ const server = app.listen(PORT, "0.0.0.0", () => {
   console.log("");
 });
 
+if (process.env.DISABLE_AUTO_SCAN !== "true") {
+  setTimeout(() => {
+    manager.getAllBots().forEach((bot) => {
+      if (bot.enabled) manager.runBot(bot.id).catch(() => {});
+    });
+  }, 2000);
+}
+
 // Graceful shutdown
 process.on("SIGINT", () => {
   manager.shutdown();
