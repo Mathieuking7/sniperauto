@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState, useCallback } from 'react'
-
 interface Deal {
   name: string
   price: string
@@ -83,7 +82,6 @@ export default function Hero() {
   const stepRef = useRef(0)
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
-  // Counter animation
   useEffect(() => {
     if (!counterRef.current) return
     const el = counterRef.current
@@ -104,19 +102,15 @@ export default function Hero() {
     return () => { running = false; clearTimeout(t) }
   }, [])
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     if (chatRef.current) {
       chatRef.current.scrollTo({ top: chatRef.current.scrollHeight, behavior: 'smooth' })
     }
   }, [visibleDeals, showTyping])
 
-  // WhatsApp animation loop
   const addNextDeal = useCallback(() => {
     const currentStep = stepRef.current
-
     if (currentStep >= deals.length) {
-      // Reset: fade out, then restart
       timerRef.current = setTimeout(() => {
         setVisibleDeals([])
         setShowTyping(false)
@@ -125,21 +119,14 @@ export default function Hero() {
       }, 3500)
       return
     }
-
-    // Show typing
     setShowTyping(true)
-
     timerRef.current = setTimeout(() => {
-      // Hide typing, add message
       setShowTyping(false)
       setVisibleDeals(prev => {
         const next = [...prev, currentStep]
-        // Keep only last MAX_VISIBLE
         return next.slice(-MAX_VISIBLE)
       })
       stepRef.current = currentStep + 1
-
-      // Schedule next
       timerRef.current = setTimeout(() => addNextDeal(), 2000)
     }, 1200)
   }, [])
@@ -159,7 +146,7 @@ export default function Hero() {
         <div className="ring"></div>
         <div className="ring"></div>
       </div>
-      <div className="container">
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="hero-grid">
           <div className="hero-text">
             <div className="hero-badge"><span className="dot"></span> Surveillance en temps réel</div>
