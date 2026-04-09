@@ -99,6 +99,7 @@ export default function Pricing() {
           <div className="pricing-card animate-on-scroll">
             <div className="pricing-name">Essentiel</div>
             <div className="pricing-price" style={{ opacity: 1 }}>
+              <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '16px', marginRight: '6px' }}>{isAnnual ? '948 EUR' : '149 EUR'}</span>
               <span>EUR</span> {isAnnual ? Math.round(79 * 12 * 0.8) : 79}<span>/{isAnnual ? 'an' : 'mois'}</span>
             </div>
             <div className="pricing-period" style={{ color: '#666', fontWeight: 600, fontSize: '13px' }}>Sans engagement</div>
@@ -130,7 +131,7 @@ export default function Pricing() {
             <div className="popular-badge">Choisi par 87% des pros</div>
             <div className="pricing-name">Pro</div>
             <div className="pricing-price" style={{ opacity: 1 }}>
-              <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '16px', marginRight: '6px' }}>149 EUR</span>
+              <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '16px', marginRight: '6px' }}>{isAnnual ? '1188 EUR' : '149 EUR'}</span>
               <span>EUR</span> {isAnnual ? Math.round(99 * 12 * 0.8) : 99}<span>/{isAnnual ? 'an' : 'mois'}</span>
             </div>
             <div className="pricing-period" style={{ color: '#34c759', fontWeight: 600, fontSize: '13px' }}>Sans engagement — resiliable en 1 clic</div>
