@@ -28,21 +28,28 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
     const email = session.customer_email || session.customer_details?.email;
     const plan = session.metadata?.plan || "unknown";
     const billing = session.metadata?.billing || "monthly";
+    const userInfo = {
+      firstName: session.metadata?.firstName || "",
+      lastName: session.metadata?.lastName || "",
+      email: email || session.metadata?.email || "",
+      phone: session.metadata?.phone || "",
+      companyName: session.metadata?.companyName || "",
+    };
 
     // Save to DB
     try {
       manager.db.prepare(`
         INSERT INTO subscribers (email, stripe_customer_id, stripe_subscription_id, plan, billing)
         VALUES (?, ?, ?, ?, ?)
-      `).run(email, session.customer, session.subscription, plan, billing);
-      console.log(`[Stripe] Nouvel abonne: ${email} - ${plan}`);
+      `).run(userInfo.email, session.customer, session.subscription, plan, billing);
+      console.log(`[Stripe] Nouvel abonné: ${userInfo.email} - ${plan} (${userInfo.firstName} ${userInfo.lastName})`);
     } catch (e) {
       console.error("[Stripe] DB error:", e.message);
     }
 
     // Send emails
-    await sendSubscriptionConfirmation(email, plan, billing);
-    await sendAdminNotification(email, plan, billing);
+    await sendSubscriptionConfirmation(userInfo, plan, billing);
+    await sendAdminNotification(userInfo, plan, billing);
   }
 
   res.json({ received: true });
@@ -166,25 +173,33 @@ const SETUP_FEE_MAP = {
 };
 
 app.post("/api/checkout", async (req, res) => {
-  const { plan, billing } = req.body;
+  const { plan, billing, firstName = "", lastName = "", email = "", phone = "", companyName = "" } = req.body;
   const priceKey = `${plan}_${billing}`;
   const priceId = PRICE_MAP[priceKey];
   const setupPriceId = SETUP_FEE_MAP[plan];
 
-  if (!priceId) return res.status(400).json({ error: "Invalid plan or billing" });
+  if (!priceId) return res.status(400).json({ error: "Plan ou facturation invalide" });
 
   try {
     const lineItems = [{ price: priceId, quantity: 1 }];
     if (setupPriceId) lineItems.push({ price: setupPriceId, quantity: 1 });
 
-    const session = await stripe.checkout.sessions.create({
+    const sessionParams = {
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: lineItems,
-      metadata: { plan, billing },
+      metadata: { plan, billing, firstName, lastName, email, phone, companyName },
       success_url: `${req.protocol}://${req.get("host")}/success.html`,
-      cancel_url: `${req.protocol}://${req.get("host")}/#tarifs`,
-    });
+      cancel_url: `${req.protocol}://${req.get("host")}/#pricing`,
+      locale: "fr",
+    };
+
+    // Pre-fill customer email if provided
+    if (email) {
+      sessionParams.customer_email = email;
+    }
+
+    const session = await stripe.checkout.sessions.create(sessionParams);
     res.json({ url: session.url });
   } catch (err) {
     console.error("[Stripe] Checkout error:", err.message);
