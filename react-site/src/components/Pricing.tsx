@@ -158,9 +158,6 @@ export default function Pricing() {
             >
               {loadingPlan === 'pro' ? 'Chargement...' : 'Passer Pro — Activation en 24h'}
             </button>
-            <div style={{ fontSize: '11px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
-              Satisfait ou rembourse 14 jours — sans condition
-            </div>
           </div>
         </div>
       </div>
