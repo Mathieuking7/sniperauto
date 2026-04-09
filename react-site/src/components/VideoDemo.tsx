@@ -87,7 +87,7 @@ export default function VideoDemo() {
                   playsInline
                   preload="metadata"
                   muted
-                  poster="/Capture_d’écran_2026-04-09_à_20.37.28_1775760319420.png"
+                  poster="/Capture_d’écran_2026-04-09_à_20.37.28_1775762028044.png"
                   onEnded={() => { setIsPlaying(false); setShowOverlay(true) }}
                 />
 
