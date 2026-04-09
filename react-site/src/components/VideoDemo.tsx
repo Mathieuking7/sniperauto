@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import demoPoster from '@assets/Capture_d’écran_2026-04-09_à_20.37.28_1775760319420.png'
 
 function isMobile() {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
@@ -50,16 +51,6 @@ export default function VideoDemo() {
     }
   }
 
-  const handleFullscreen = () => {
-    const video = videoRef.current
-    if (!video) return
-    if (video.requestFullscreen) {
-      video.requestFullscreen()
-    } else if ((video as any).webkitRequestFullscreen) {
-      ;(video as any).webkitRequestFullscreen()
-    }
-  }
-
   return (
     <section className="video-demo-section" ref={containerRef}>
       <div className="container">
@@ -97,6 +88,7 @@ export default function VideoDemo() {
                   playsInline
                   preload="metadata"
                   muted
+                  poster={demoPoster}
                   onEnded={() => { setIsPlaying(false); setShowOverlay(true) }}
                 />
 
@@ -116,14 +108,6 @@ export default function VideoDemo() {
                 )}
               </div>
 
-              <div className="video-demo-controls">
-                <button className="video-demo-control-btn" onClick={handleFullscreen} title="Plein écran">
-                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                    <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
-                  </svg>
-                  Plein écran
-                </button>
-              </div>
             </>
           )}
         </div>
