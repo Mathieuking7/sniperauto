@@ -98,38 +98,25 @@ class BotManager extends EventEmitter {
   }
 
   _loadBots() {
-    const bots = this.db.prepare("SELECT * FROM bots").all();
-
-    // If no bots, create default Auto1 bot
-    if (bots.length === 0) {
-      this._createDefaultAuto1();
+    let bots = [];
+    try {
+      bots = this.db.prepare("SELECT * FROM bots").all();
+    } catch (e) {
+      if (e && e.code === "SQLITE_CORRUPT") {
+        console.warn("[BotManager] Base SQLite corrompue détectée, recréation de la table bots");
+        this.db.exec("DROP TABLE IF EXISTS bots;");
+        this._initDb();
+      } else {
+        throw e;
+      }
     }
 
-    // Ensure Aramis bot exists
-    const hasAramis = bots.some((b) => b.id === "aramis");
-    if (!hasAramis) {
-      this._createDefaultAramis();
-    }
+    this._createDefaultAuto1();
+    this._createDefaultAramis();
+    this._createDefaultLaCentrale();
+    this._createDefaultFacebook();
+    this._createDefaultLeBonCoin();
 
-    // Ensure La Centrale bot exists
-    const hasLC = this.db.prepare("SELECT id FROM bots WHERE id = 'lacentrale'").get();
-    if (!hasLC) {
-      this._createDefaultLaCentrale();
-    }
-
-    // Ensure Facebook Marketplace bot exists
-    const hasFB = this.db.prepare("SELECT id FROM bots WHERE id = 'facebook'").get();
-    if (!hasFB) {
-      this._createDefaultFacebook();
-    }
-
-    // Ensure LeBonCoin bot exists
-    const hasLBC = this.db.prepare("SELECT id FROM bots WHERE id = 'leboncoin'").get();
-    if (!hasLBC) {
-      this._createDefaultLeBonCoin();
-    }
-
-    // Reload
     const allBots = this.db.prepare("SELECT * FROM bots").all();
     for (const bot of allBots) {
       bot.filters = JSON.parse(bot.filters || "{}");
