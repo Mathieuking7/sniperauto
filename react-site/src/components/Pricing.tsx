@@ -140,7 +140,7 @@ export default function Pricing() {
             <ul className="pricing-features">
               <li><CheckIcon /> <strong>Alertes illimitées</strong></li>
               <li><CheckIcon /> <strong>Scan en temps reel</strong> ({'<'} 30 sec)</li>
-              <li><CheckIcon /> <strong>Plusieurs canaux au choix</strong> (Auto1 + LBC + FB + Aramis)</li>
+              <li><CheckIcon /> <strong>Plusieurs canaux au choix</strong></li>
               <li><CheckIcon /> WhatsApp + Email</li>
               <li><CheckIcon /> Filtres avances (km, 1ere main, CT...)</li>
               <li><CheckIcon /> Historique des prix</li>

@@ -95,24 +95,88 @@ export default function Marketplaces() {
           </div>
         </div>
 
-        <div className="mp-coming-row">
-          <div className="mp-coming-card animate-on-scroll">
+        <div className="mp-featured animate-on-scroll" style={{ marginTop: '1.5rem' }}>
+          <div className="mp-status-wrap">
             <div className="mp-logo" style={{ background: '#fff' }}>
               <img src="/logos/lacentrale.png" alt="La Centrale logo" />
             </div>
-            <div>
-              <div className="mp-name">La Centrale</div>
-              <div className="mp-offline"><span className="dot"></span> Bientôt disponible</div>
+            <div className="mp-signal">
+              <div className="mp-signal-dot"></div>
+              <div className="mp-signal-ring"></div>
             </div>
           </div>
-          <div className="mp-coming-card animate-on-scroll">
+          <div className="mp-info">
+            <div className="mp-name">La Centrale</div>
+            <div className="mp-status-label"><span className="dot"></span> En ligne — Surveillance active</div>
+            <div className="mp-desc">Surveillance des annonces de La Centrale. Alertes WhatsApp dès qu'un deal intéressant apparaît.</div>
+          </div>
+        </div>
+
+        <div className="mp-featured animate-on-scroll" style={{ marginTop: '1.5rem' }}>
+          <div className="mp-status-wrap">
             <div className="mp-logo" style={{ background: '#fff' }}>
               <img src="/logos/paruvendu.png" alt="ParuVendu logo" />
             </div>
-            <div>
-              <div className="mp-name">ParuVendu</div>
-              <div className="mp-offline"><span className="dot"></span> Bientôt disponible</div>
+            <div className="mp-signal">
+              <div className="mp-signal-dot"></div>
+              <div className="mp-signal-ring"></div>
             </div>
+          </div>
+          <div className="mp-info">
+            <div className="mp-name">ParuVendu</div>
+            <div className="mp-status-label"><span className="dot"></span> En ligne — Surveillance active</div>
+            <div className="mp-desc">Scan des annonces auto ParuVendu. Détection instantanée des bonnes affaires près de chez vous.</div>
+          </div>
+        </div>
+
+        <div className="mp-featured animate-on-scroll" style={{ marginTop: '1.5rem' }}>
+          <div className="mp-status-wrap">
+            <div className="mp-logo" style={{ background: '#fff' }}>
+              <img src="/logos/alcopa.png" alt="Alcopa logo" />
+            </div>
+            <div className="mp-signal">
+              <div className="mp-signal-dot"></div>
+              <div className="mp-signal-ring"></div>
+            </div>
+          </div>
+          <div className="mp-info">
+            <div className="mp-name">Alcopa</div>
+            <div className="mp-status-label"><span className="dot"></span> En ligne — Surveillance active</div>
+            <div className="mp-desc">Surveillance des annonces Alcopa en temps réel. Alertes instantanées sur WhatsApp pour les meilleures affaires.</div>
+          </div>
+        </div>
+
+        <div className="mp-featured animate-on-scroll" style={{ marginTop: '1.5rem' }}>
+          <div className="mp-status-wrap">
+            <div className="mp-logo" style={{ background: '#fff' }}>
+              <img src="/logos/proencheres.png" alt="Pro Encheres VO logo" />
+            </div>
+            <div className="mp-signal">
+              <div className="mp-signal-dot"></div>
+              <div className="mp-signal-ring"></div>
+            </div>
+          </div>
+          <div className="mp-info">
+            <div className="mp-name">Pro Encheres VO</div>
+            <div className="mp-status-label"><span className="dot"></span> En ligne — Surveillance active</div>
+            <div className="mp-desc">Accès aux enchères Pro Encheres VO. Alertes immédiatement sur vos critères de recherche.</div>
+          </div>
+        </div>
+
+        <div className="mp-featured animate-on-scroll" style={{ marginTop: '1.5rem' }}>
+          <div className="mp-status-wrap">
+            <div className="mp-logo" style={{ background: '#fff' }}>
+              <img src="/logos/bca.png" alt="BCA logo" />
+            </div>
+            <div className="mp-signal">
+              <div className="mp-signal-dot"></div>
+              <div className="mp-signal-ring"></div>
+            </div>
+          </div>
+          <div className="mp-info">
+            <div className="mp-name">BCA</div>
+            <div className="mp-status-label"><span className="dot"></span> En ligne — Surveillance active</div>
+            <div className="mp-desc">Surveillance des enchères BCA. Détection automatique des véhicules correspondant à vos critères.</div>
           </div>
         </div>
 
