@@ -14,6 +14,7 @@ const CrossIcon = () => (
 
 export default function Pricing() {
   const [loadingPlan, setLoadingPlan] = useState<string | null>(null)
+  const [isAnnual, setIsAnnual] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -61,58 +62,85 @@ export default function Pricing() {
         <h2 className="section-title animate-on-scroll">Choisissez votre avantage concurrentiel</h2>
         <p className="section-subtitle animate-on-scroll">Pendant que vous comparez, un abonne Pro vient de recevoir une alerte.</p>
 
-        <div className="pricing-grid pricing-grid-3">
+        <div style={{ textAlign: 'center', marginBottom: '40px' }}>
+          <div style={{ display: 'inline-flex', alignItems: 'center', gap: '16px', background: '#f5f5f5', padding: '8px 16px', borderRadius: '8px' }}>
+            <span style={{ color: isAnnual ? '#999' : '#000', fontWeight: isAnnual ? 400 : 600 }}>Mensuel</span>
+            <button
+              onClick={() => setIsAnnual(!isAnnual)}
+              style={{
+                background: isAnnual ? '#34c759' : '#ccc',
+                border: 'none',
+                borderRadius: '16px',
+                width: '48px',
+                height: '24px',
+                cursor: 'pointer',
+                position: 'relative',
+                transition: 'background 0.3s',
+              }}
+            >
+              <div style={{
+                position: 'absolute',
+                width: '20px',
+                height: '20px',
+                background: 'white',
+                borderRadius: '50%',
+                top: '2px',
+                left: isAnnual ? '26px' : '2px',
+                transition: 'left 0.3s',
+              }} />
+            </button>
+            <span style={{ color: isAnnual ? '#000' : '#999', fontWeight: isAnnual ? 600 : 400 }}>Annuel <span style={{ color: '#34c759', fontWeight: 700 }}>-20%</span></span>
+          </div>
+        </div>
 
-          {/* Essentiel — Decoy */}
-          <div className="pricing-card animate-on-scroll" style={{ opacity: 0.85 }}>
-            <div className="pricing-name" style={{ color: '#888' }}>Essentiel</div>
+        <div className="pricing-grid pricing-grid-2">
+
+          {/* Essentiel */}
+          <div className="pricing-card animate-on-scroll">
+            <div className="pricing-name">Essentiel</div>
             <div className="pricing-price" style={{ opacity: 1 }}>
-              <span>EUR</span> 39<span>/mois</span>
+              <span>EUR</span> {isAnnual ? Math.round(79 * 12 * 0.8) : 79}<span>/{isAnnual ? 'an' : 'mois'}</span>
             </div>
-            <div className="pricing-period" style={{ color: '#e53e3e', fontWeight: 600, fontSize: '13px' }}>Engagement 6 mois minimum</div>
+            <div className="pricing-period" style={{ color: '#666', fontWeight: 600, fontSize: '13px' }}>Sans engagement</div>
             <div style={{ fontSize: '12px', color: '#888', marginTop: '4px', marginBottom: '16px' }}>
-              Soit 234 EUR minimum
+              Frais de mise en service: 99 EUR
             </div>
             <ul className="pricing-features">
-              <li><CheckIcon /> 1 alerte active</li>
-              <li><CheckIcon /> Scan toutes les 60 min</li>
-              <li><CheckIcon /> Surveillance Auto1 uniquement</li>
+              <li><CheckIcon /> Alertes illimitées</li>
+              <li><CheckIcon /> Scan toutes les heures</li>
+              <li><CheckIcon /> 1 canal au choix</li>
               <li><CheckIcon /> Alertes WhatsApp</li>
               <li><CheckIcon /> Support par email</li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Facebook Marketplace</s></li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Le Bon Coin</s></li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Aramis Auto Pro</s></li>
-              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Alertes instantanees</s></li>
+              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Scan temps réel</s></li>
+              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Filtres avancés</s></li>
               <li style={{ color: '#bbb' }}><CrossIcon /> <s>Historique des prix</s></li>
+              <li style={{ color: '#bbb' }}><CrossIcon /> <s>Account manager</s></li>
             </ul>
-            <div style={{ fontSize: '11px', color: '#e53e3e', marginBottom: '12px', lineHeight: 1.4 }}>
-              Avec un scan toutes les 60 min, les meilleures affaires sont deja prises par les abonnes Pro.
-            </div>
             <button
               className="pricing-btn secondary"
-              onClick={() => checkout('essentiel')}
+              onClick={() => checkout(isAnnual ? 'essentiel_annual' : 'essentiel')}
               disabled={loadingPlan === 'essentiel'}
             >
               {loadingPlan === 'essentiel' ? 'Chargement...' : "Demarrer avec l'Essentiel"}
             </button>
           </div>
 
-          {/* Pro — Target */}
+          {/* Pro */}
           <div className="pricing-card popular animate-on-scroll" style={{ transform: 'scale(1.04)', zIndex: 2 }}>
             <div className="popular-badge">Choisi par 87% des pros</div>
             <div className="pricing-name">Pro</div>
             <div className="pricing-price" style={{ opacity: 1 }}>
               <span style={{ textDecoration: 'line-through', color: '#999', fontSize: '16px', marginRight: '6px' }}>149 EUR</span>
-              <span>EUR</span> 99<span>/mois</span>
+              <span>EUR</span> {isAnnual ? Math.round(99 * 12 * 0.8) : 99}<span>/{isAnnual ? 'an' : 'mois'}</span>
             </div>
             <div className="pricing-period" style={{ color: '#34c759', fontWeight: 600, fontSize: '13px' }}>Sans engagement — resiliable en 1 clic</div>
-            <div style={{ fontSize: '12px', color: '#007AFF', marginTop: '4px', marginBottom: '16px', fontWeight: 600 }}>
-              Mise en service OFFERTE
+            <div style={{ fontSize: '16px', color: '#34c759', marginTop: '8px', marginBottom: '16px', fontWeight: 700, background: '#d4f4e7', padding: '12px', borderRadius: '6px' }}>
+              ✓ Mise en service OFFERTE
             </div>
             <ul className="pricing-features">
-              <li><CheckIcon /> <strong>25 alertes differentes</strong></li>
+              <li><CheckIcon /> <strong>Alertes illimitées</strong></li>
               <li><CheckIcon /> <strong>Scan en temps reel</strong> ({'<'} 30 sec)</li>
-              <li><CheckIcon /> <strong>4 sources :</strong> Auto1 + LBC + FB + Aramis</li>
+              <li><CheckIcon /> <strong>Plusieurs canaux au choix</strong> (Auto1 + LBC + FB + Aramis)</li>
               <li><CheckIcon /> WhatsApp + Email</li>
               <li><CheckIcon /> Filtres avances (km, 1ere main, CT...)</li>
               <li><CheckIcon /> Historique des prix</li>
@@ -120,11 +148,11 @@ export default function Pricing() {
               <li><CheckIcon /> Nouvelles sources en avant-premiere</li>
             </ul>
             <div style={{ fontSize: '12px', color: '#555', marginBottom: '12px', lineHeight: 1.4, background: '#f0f7ff', borderRadius: '8px', padding: '10px 12px' }}>
-              Soit <strong>3,30 EUR/jour</strong> — rentabilise des le 1er deal. En moyenne, nos utilisateurs Pro trouvent leur premier deal rentable en 4 jours.
+              Soit <strong>{isAnnual ? (Math.round(99 * 12 * 0.8) / 365).toFixed(2) : '3,30'} EUR/jour</strong> — rentabilise des le 1er deal. En moyenne, nos utilisateurs Pro trouvent leur premier deal rentable en 4 jours.
             </div>
             <button
               className="pricing-btn primary"
-              onClick={() => checkout('pro')}
+              onClick={() => checkout(isAnnual ? 'pro_annual' : 'pro')}
               disabled={loadingPlan === 'pro'}
               style={{ fontSize: '1.05rem', padding: '14px 24px' }}
             >
@@ -133,34 +161,6 @@ export default function Pricing() {
             <div style={{ fontSize: '11px', color: '#888', marginTop: '8px', textAlign: 'center' }}>
               Satisfait ou rembourse 14 jours — sans condition
             </div>
-          </div>
-
-          {/* Sur-Mesure — Anchor */}
-          <div className="pricing-card animate-on-scroll" style={{ opacity: 0.85 }}>
-            <div className="pricing-name" style={{ color: '#888' }}>Sur-Mesure</div>
-            <div className="pricing-price" style={{ opacity: 1 }}>
-              <span>A partir de</span> 249<span>EUR/mois</span>
-            </div>
-            <div className="pricing-period">Pour les structures a gros volumes</div>
-            <div style={{ fontSize: '12px', color: '#888', marginTop: '4px', marginBottom: '16px' }}>
-              Mise en service offerte
-            </div>
-            <ul className="pricing-features">
-              <li><CheckIcon /> Tout le plan Pro inclus</li>
-              <li><CheckIcon /> Volume d'alertes personnalise</li>
-              <li><CheckIcon /> Criteres de recherche sur-mesure</li>
-              <li><CheckIcon /> Integration avec vos outils (DMS, CRM)</li>
-              <li><CheckIcon /> Account manager dedie</li>
-              <li><CheckIcon /> Onboarding personnalise</li>
-              <li><CheckIcon /> SLA garanti</li>
-            </ul>
-            <a
-              href="#contact"
-              className="pricing-btn secondary"
-              style={{ display: 'block', textAlign: 'center', textDecoration: 'none' }}
-            >
-              Nous contacter
-            </a>
           </div>
         </div>
       </div>
