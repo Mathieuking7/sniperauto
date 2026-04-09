@@ -4,14 +4,6 @@ expertMode = true
 
 [[ports]]
 localPort = 3000
-externalPort = 3000
-
-[[ports]]
-localPort = 3001
-externalPort = 3001
-
-[[ports]]
-localPort = 5000
 externalPort = 80
 
 [workflows]
@@ -36,7 +28,7 @@ outputType = "webview"
 [[workflows.workflow.tasks]]
 task = "shell.exec"
 args = "node dashboard.js"
-waitForPort = 5000
+waitForPort = 3000
 
 [userenv]
 
@@ -50,4 +42,3 @@ STRIPE_PRICE_SETUP_PRO = "price_1TKNCLRDI8MdZ3vay2npZmsM"
 STRIPE_WEBHOOK_SECRET = "whsec_6huSoTm863Il4DJUCJUtPXDebivh4rpT"
 FROM_EMAIL = "SniperAuto <contact@sniperauto.fr>"
 ADMIN_EMAIL = "sosparebrise34.contact@gmail.com"
-DASHBOARD_PORT = "5000"

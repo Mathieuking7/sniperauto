@@ -10,7 +10,7 @@ const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest 
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const app = express();
-const PORT = process.env.PORT || process.env.DASHBOARD_PORT || 5000;
+const PORT = process.env.PORT || 3000;
 
 // Stripe webhook needs raw body — MUST be before express.json()
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {
