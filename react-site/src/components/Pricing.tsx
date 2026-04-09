@@ -61,7 +61,7 @@ export default function Pricing() {
         <h2 className="section-title animate-on-scroll">Choisissez votre avantage concurrentiel</h2>
         <p className="section-subtitle animate-on-scroll">Pendant que vous comparez, un abonne Pro vient de recevoir une alerte.</p>
 
-        <div className="pricing-grid pricing-grid-3" style={{ display: 'grid', gridTemplateColumns: '1fr 1.08fr 1fr', gap: '1.5rem', maxWidth: '1100px', margin: '3rem auto 0' }}>
+        <div className="pricing-grid pricing-grid-3">
 
           {/* Essentiel — Decoy */}
           <div className="pricing-card animate-on-scroll" style={{ opacity: 0.85 }}>

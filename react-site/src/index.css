@@ -1196,6 +1196,11 @@ section {
   grid-template-columns: repeat(2, 1fr);
   max-width: 680px;
 }
+.pricing-grid-3 {
+  grid-template-columns: 1fr 1.08fr 1fr;
+  max-width: 1100px;
+  margin-top: 3rem;
+}
 .pricing-card {
   background: var(--white);
   backdrop-filter: blur(12px);
