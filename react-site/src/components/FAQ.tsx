@@ -26,7 +26,7 @@ const faqs = [
       </svg>
     ),
     question: "Quels sont les canaux disponibles ?",
-    answer: "Essentiel: 1 canal au choix parmi Auto1, Le Bon Coin, Facebook Marketplace, Aramis Auto Pro. Pro: Accès à tous les canaux + Alcopa, BCA, Pro Encheres VO et autres. Le plan Pro offre une couverture complète du marché automobile français.",
+    answer: "Essentiel : 1 canal au choix parmi Auto1, Le Bon Coin, Facebook Marketplace, Aramis Auto Pro. Pro : accès à tous les canaux + Alcopa, BCA, Pro Encheres VO et autres. Le plan Pro offre une couverture complète du marché automobile français.",
   },
   {
     icon: (
@@ -54,7 +54,7 @@ const faqs = [
       </svg>
     ),
     question: "SniperAuto est-il pour les particuliers ou les pros ?",
-    answer: "Pour les deux ! Essentiel (79€/mois) convient parfaitement aux particuliers cherchant une bonne affaire. Pro (99€/mois) est idéal pour les garagistes, négociants et mandataires qui monitalisent les deals.",
+    answer: "Pour les deux ! SniperAuto est idéal pour les garagistes, négociants, mandataires, mais aussi pour les particuliers qui veulent trouver la meilleure affaire avant tout le monde.",
   },
   {
     icon: (
@@ -63,16 +63,17 @@ const faqs = [
       </svg>
     ),
     question: "Quelle est la vitesse de détection ?",
-    answer: "Plan Essentiel: scan toutes les heures. Plan Pro: temps réel (< 30 secondes). Cela signifie que les abonnés Pro découvrent les meilleures affaires en premier.",
+    answer: "Plan Essentiel : scan toutes les heures. Plan Pro : temps réel (< 30 secondes). Cela signifie que les abonnés Pro découvrent les meilleures affaires en premier.",
   },
 ]
 
 export default function FAQ() {
   const [openIdx, setOpenIdx] = useState<number | null>(null)
+  const [visible, setVisible] = useState(false)
   const sectionRef = useRef<HTMLElement>(null)
 
   const toggle = (i: number) => {
-    setOpenIdx(openIdx === i ? null : i)
+    setOpenIdx(prev => (prev === i ? null : i))
   }
 
   useEffect(() => {
@@ -80,32 +81,29 @@ export default function FAQ() {
       (entries) => {
         entries.forEach((e) => {
           if (e.isIntersecting) {
-            e.target.classList.add('visible')
-            observer.unobserve(e.target)
+            setVisible(true)
+            observer.disconnect()
           }
         })
       },
-      { threshold: 0.15 }
+      { threshold: 0.1 }
     )
-    if (sectionRef.current) {
-      sectionRef.current.querySelectorAll('.animate-on-scroll').forEach((el) => observer.observe(el))
-    }
+    if (sectionRef.current) observer.observe(sectionRef.current)
     return () => observer.disconnect()
   }, [])
 
   return (
     <section className="faq" id="faq" ref={sectionRef}>
       <div className="container">
-        <h2 className="section-title animate-on-scroll">Questions fréquentes</h2>
-        <p className="section-subtitle animate-on-scroll">Tout ce que vous devez savoir sur SniperAuto.</p>
+        <h2 className={`section-title animate-on-scroll${visible ? ' visible' : ''}`}>Questions fréquentes</h2>
+        <p className={`section-subtitle animate-on-scroll${visible ? ' visible' : ''}`}>Tout ce que vous devez savoir sur SniperAuto.</p>
         <div className="faq-grid">
           {faqs.map((faq, i) => (
-            <button
+            <div
               key={i}
-              type="button"
-              className={`faq-card animate-on-scroll${openIdx === i ? ' open' : ''}`}
+              className={`faq-card${openIdx === i ? ' open' : ''}${visible ? ' visible' : ''}`}
+              style={{ cursor: 'pointer' }}
               onClick={() => toggle(i)}
-              style={{ width: '100%', textAlign: 'left', border: 'none', background: 'white' }}
             >
               <div className="faq-card-header">
                 <div className="faq-card-icon">{faq.icon}</div>
@@ -114,7 +112,7 @@ export default function FAQ() {
               <div className="faq-card-answer">
                 <p>{faq.answer}</p>
               </div>
-            </button>
+            </div>
           ))}
         </div>
       </div>
