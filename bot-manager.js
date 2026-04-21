@@ -380,6 +380,15 @@ class BotManager extends EventEmitter {
       const durationMs = Date.now() - startTime;
       bot.status = "error";
       console.error(`[BotManager] ${bot.name} erreur:`, err.message);
+      if (String(err.message || "").includes("Executable doesn't exist")) {
+        this.db.prepare(
+          "UPDATE bots SET status = 'idle' WHERE id = ?"
+        ).run(bot.id);
+        this.db.prepare(
+          "INSERT INTO scan_logs (bot_id, total_found, new_deals, notified, error, duration_ms) VALUES (?, 0, 0, 0, ?, ?)"
+        ).run(bot.id, "Playwright browser missing - scan skipped", durationMs);
+        return { total: 0, new: 0, notified: 0 };
+      }
 
       this.db.prepare(
         "UPDATE bots SET status = 'error' WHERE id = ?"
