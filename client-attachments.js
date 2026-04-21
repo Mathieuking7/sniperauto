@@ -1,8 +1,8 @@
 /**
  * Generates PDF + CSV attachments for client setup admin email.
- * Uses playwright chromium (already installed) to render PDF from HTML.
+ * Uses pdfkit (pure Node.js, no browser required).
  */
-const { chromium } = require("playwright");
+const PDFDocument = require("pdfkit");
 
 function escapeCsv(v) {
   if (v === null || v === undefined) return "";
@@ -52,111 +52,121 @@ function buildCsv(d) {
     ["Notes", d.notes || ""],
     ["Date de soumission", new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })],
   ];
-  // BOM for Excel UTF-8 compatibility
   return "\uFEFF" + rows.map((r) => r.map(escapeCsv).join(",")).join("\n");
 }
 
-function buildPdfHtml(d) {
-  const join = (arr) => Array.isArray(arr) ? arr.join(", ") : (arr || "—");
-  const yesNo = (v) => v ? "Oui" : "Non";
-  const row = (label, value) => `<tr><td class="lbl">${label}</td><td>${value || "—"}</td></tr>`;
-  const qualityFlags = [
-    d.firstOwner && "1ère main",
-    d.noAccident && "Sans accident",
-    d.ctValid && "CT valide",
-    d.zeroDefects && "Zéro défaut",
-  ].filter(Boolean).join(" · ") || "—";
+function generatePdfBuffer(d) {
+  return new Promise((resolve, reject) => {
+    const doc = new PDFDocument({ size: "A4", margin: 40 });
+    const chunks = [];
+    doc.on("data", (chunk) => chunks.push(chunk));
+    doc.on("end", () => resolve(Buffer.concat(chunks)));
+    doc.on("error", reject);
 
-  return `<!DOCTYPE html>
-<html lang="fr"><head><meta charset="UTF-8">
-<style>
-  * { box-sizing: border-box; }
-  body { font-family: -apple-system, "Helvetica Neue", Arial, sans-serif; color: #1a1a1a; margin: 0; padding: 40px; font-size: 12px; }
-  h1 { font-size: 22px; margin: 0 0 4px; color: #007AFF; }
-  h2 { font-size: 14px; margin: 24px 0 10px; color: #007AFF; text-transform: uppercase; letter-spacing: 0.05em; border-bottom: 2px solid #007AFF; padding-bottom: 4px; }
-  .sub { color: #666; font-size: 12px; margin: 0 0 20px; }
-  table { width: 100%; border-collapse: collapse; }
-  td { padding: 6px 8px; border-bottom: 1px solid #eee; vertical-align: top; }
-  td.lbl { color: #666; width: 38%; }
-  .header-box { background: #007AFF; color: white; padding: 18px 22px; border-radius: 10px; margin-bottom: 16px; }
-  .header-box h1 { color: white; font-size: 20px; margin: 0; }
-  .header-box p { margin: 4px 0 0; opacity: 0.85; font-size: 12px; }
-  .footer { margin-top: 24px; padding-top: 12px; border-top: 1px solid #eee; color: #999; font-size: 10px; text-align: center; }
-  .warn { background: #fffbeb; border: 1px solid #fcd34d; color: #92400e; padding: 10px 14px; border-radius: 8px; margin-top: 14px; font-weight: 600; text-align: center; }
-</style></head><body>
-  <div class="header-box">
-    <h1>SniperAuto — Fiche client</h1>
-    <p>Nouveau client à activer — ${d.firstName || ""} ${d.lastName || ""}</p>
-  </div>
+    const join = (arr) => Array.isArray(arr) ? arr.join(", ") : (arr || "—");
+    const val = (v) => (v !== null && v !== undefined && v !== "") ? String(v) : "—";
 
-  <h2>Identité</h2>
-  <table>
-    ${row("Prénom", d.firstName)}
-    ${row("Nom", d.lastName)}
-    ${row("Téléphone WhatsApp", d.phone)}
-    ${row("Email", d.email)}
-    ${row("Type de profil", d.sellerType)}
-  </table>
+    const BLUE = "#007AFF";
+    const DARK = "#1a1a1a";
+    const GREY = "#666666";
+    const W = 515;
 
-  <h2>Zone & Budget</h2>
-  <table>
-    ${row("Ville de référence", d.city)}
-    ${row("Rayon", d.radius ? `${d.radius} km` : "")}
-    ${row("Prix", `${d.minPrice || 0} → ${d.maxPrice || "—"} €`)}
-    ${row("Kilométrage", `${d.minKm || 0} → ${d.maxKm || "—"} km`)}
-    ${row("Année", `${d.minYear || "—"} → ${d.maxYear || "—"}`)}
-  </table>
+    // Header box
+    doc.rect(40, 40, W, 60).fill(BLUE);
+    doc.fillColor("white").fontSize(18).font("Helvetica-Bold")
+      .text("SniperAuto — Fiche client", 55, 55);
+    doc.fontSize(11).font("Helvetica")
+      .text(`Nouveau client à activer — ${d.firstName || ""} ${d.lastName || ""}`, 55, 78);
 
-  <h2>Véhicule</h2>
-  <table>
-    ${row("Types", join(d.vehicleType))}
-    ${row("Carburant", join(d.fuel))}
-    ${row("Boîte de vitesses", d.gearbox)}
-    ${row("Nombre de portes", d.numDoors)}
-    ${row("Puissance", (d.minCv || d.maxCv) ? `${d.minCv || 0} → ${d.maxCv || "—"} CV` : "")}
-    ${row("Couleurs", join(d.colors))}
-    ${row("Options", join(d.options))}
-  </table>
+    doc.moveDown(3.5);
 
-  <h2>Vendeur & Qualité</h2>
-  <table>
-    ${row("Type de vendeur", d.sellerType)}
-    ${row("Critères qualité", qualityFlags)}
-    ${row("Note min Auto1", d.minAutoScore)}
-  </table>
+    function section(title) {
+      doc.fillColor(BLUE).fontSize(11).font("Helvetica-Bold").text(title.toUpperCase());
+      doc.moveTo(40, doc.y).lineTo(555, doc.y).strokeColor(BLUE).lineWidth(1.5).stroke();
+      doc.moveDown(0.4);
+    }
 
-  <h2>Sources & Marques</h2>
-  <table>
-    ${row("Plateformes", join(d.platforms))}
-    ${row("Villes Enchères VO", join(d.evoCities))}
-    ${row("Marques préférées", join(d.preferredBrands))}
-    ${row("Marques exclues", join(d.excludedBrands))}
-    ${row("Mots-clés inclus", join(d.keywords))}
-    ${row("Mots-clés exclus", join(d.excludeKeywords))}
-  </table>
+    function row(label, value) {
+      const y = doc.y;
+      doc.fillColor(GREY).fontSize(10).font("Helvetica").text(label, 40, y, { width: 180 });
+      doc.fillColor(DARK).fontSize(10).font("Helvetica").text(val(value), 230, y, { width: 325 });
+      doc.moveTo(40, doc.y).lineTo(555, doc.y).strokeColor("#eeeeee").lineWidth(0.5).stroke();
+      doc.moveDown(0.35);
+    }
 
-  ${d.notes ? `<h2>Notes</h2><p style="background:#f5f5f7;padding:12px;border-radius:8px;white-space:pre-wrap;">${d.notes}</p>` : ""}
+    // Identité
+    section("Identité");
+    row("Prénom", d.firstName);
+    row("Nom", d.lastName);
+    row("Téléphone WhatsApp", d.phone);
+    row("Email", d.email);
+    row("Type de profil", d.sellerType);
+    doc.moveDown(0.8);
 
-  <div class="warn">À activer sous 24h — contacter le client sur WhatsApp</div>
+    // Zone & Budget
+    section("Zone & Budget");
+    row("Ville de référence", d.city);
+    row("Rayon", d.radius ? `${d.radius} km` : "");
+    row("Budget", `${d.minPrice || 0} → ${d.maxPrice || "—"} €`);
+    row("Kilométrage", `${d.minKm || 0} → ${d.maxKm || "—"} km`);
+    row("Année", `${d.minYear || "—"} → ${d.maxYear || "—"}`);
+    doc.moveDown(0.8);
 
-  <div class="footer">Généré le ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })} · SniperAuto</div>
-</body></html>`;
-}
+    // Véhicule
+    section("Véhicule");
+    row("Types", join(d.vehicleType));
+    row("Carburant", join(d.fuel));
+    row("Boîte de vitesses", d.gearbox);
+    row("Nombre de portes", d.numDoors);
+    row("Puissance", (d.minCv || d.maxCv) ? `${d.minCv || 0} → ${d.maxCv || "—"} CV` : "");
+    row("Couleurs", join(d.colors));
+    row("Options", join(d.options));
+    doc.moveDown(0.8);
 
-async function generatePdfBuffer(data) {
-  const browser = await chromium.launch({ headless: true });
-  try {
-    const page = await browser.newPage();
-    await page.setContent(buildPdfHtml(data), { waitUntil: "domcontentloaded" });
-    const pdf = await page.pdf({
-      format: "A4",
-      printBackground: true,
-      margin: { top: "15mm", bottom: "15mm", left: "12mm", right: "12mm" },
-    });
-    return pdf;
-  } finally {
-    await browser.close();
-  }
+    // Qualité
+    const qualityFlags = [
+      d.firstOwner && "1ère main",
+      d.noAccident && "Sans accident",
+      d.ctValid && "CT valide",
+      d.zeroDefects && "Zéro défaut",
+    ].filter(Boolean).join(" · ") || "—";
+    section("Vendeur & Qualité");
+    row("Type de vendeur", d.sellerType);
+    row("Critères qualité", qualityFlags);
+    row("Note min Auto1", d.minAutoScore);
+    doc.moveDown(0.8);
+
+    // Sources & Marques
+    section("Sources & Marques");
+    row("Plateformes", join(d.platforms));
+    row("Villes Enchères VO", join(d.evoCities));
+    row("Marques préférées", join(d.preferredBrands));
+    row("Marques exclues", join(d.excludedBrands));
+    row("Mots-clés inclus", join(d.keywords));
+    row("Mots-clés exclus", join(d.excludeKeywords));
+    doc.moveDown(0.8);
+
+    // Notes
+    if (d.notes) {
+      section("Notes");
+      doc.fillColor(DARK).fontSize(10).font("Helvetica").text(d.notes, { width: W });
+      doc.moveDown(0.8);
+    }
+
+    // Warning banner
+    doc.moveDown(0.5);
+    const warnY = doc.y;
+    doc.rect(40, warnY, W, 30).fill("#fffbeb");
+    doc.fillColor("#92400e").fontSize(10).font("Helvetica-Bold")
+      .text("À activer sous 24h — contacter le client sur WhatsApp", 40, warnY + 9, { align: "center", width: W });
+
+    // Footer
+    doc.moveDown(3);
+    doc.fillColor(GREY).fontSize(9).font("Helvetica")
+      .text(`Généré le ${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })} · SniperAuto`, { align: "center" });
+
+    doc.end();
+  });
 }
 
 async function generateClientAttachments(data) {
@@ -182,4 +192,4 @@ async function generateClientAttachments(data) {
   ];
 }
 
-module.exports = { generateClientAttachments, buildCsv, buildPdfHtml };
+module.exports = { generateClientAttachments, buildCsv };
