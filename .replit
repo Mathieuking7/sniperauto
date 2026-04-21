@@ -43,3 +43,7 @@ ADMIN_EMAIL = "sosparebrise34.contact@gmail.com"
 localPort = 3000
 externalPort = 80
 exposeLocalhost = true
+
+[deployment]
+deploymentTarget = "vm"
+run = ["node", "dashboard.js"]
