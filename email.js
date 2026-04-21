@@ -56,7 +56,7 @@ async function sendSubscriptionConfirmation(userInfo, plan, billing) {
           <!-- Prochaine étape -->
           <div style="background: linear-gradient(135deg, #007AFF 0%, #5856d6 100%); border-radius: 20px; padding: 28px; text-align: center; margin-bottom: 28px;">
             <p style="color: rgba(255,255,255,0.8); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.08em; margin: 0 0 8px;">Prochaine étape</p>
-            <p style="color: white; font-size: 18px; font-weight: 700; margin: 0 0 10px;">Notre équipe vous contacte sous 24h</p>
+            <p style="color: white; font-size: 18px; font-weight: 700; margin: 0 0 10px;">Notre équipe vous contacte sous 48h</p>
             <p style="color: rgba(255,255,255,0.85); font-size: 14px; margin: 0; line-height: 1.6;">
               Nous vous appellerons ou enverrons un message WhatsApp pour configurer vos alertes, vos critères de recherche et activer votre compte.
             </p>
@@ -181,7 +181,7 @@ async function sendAdminNotification(userInfo, plan, billing) {
       </div>
 
       <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 16px; text-align: center;">
-        <p style="font-size: 14px; font-weight: 700; color: #92400e; margin: 0;">⏰ À contacter sous 24h pour configurer ses alertes WhatsApp</p>
+        <p style="font-size: 14px; font-weight: 700; color: #92400e; margin: 0;">⏰ À contacter sous 48h pour configurer ses alertes WhatsApp</p>
       </div>
 
       <div style="margin-top: 20px; text-align: center;">
@@ -266,7 +266,7 @@ async function sendClientSetupConfirmation(data) {
 
           <!-- Greeting -->
           <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 16px;">Bonjour ${firstName},</p>
-          <p style="font-size: 15px; color: #444; line-height: 1.6; margin: 0 0 28px;">Nous avons bien reçu vos critères. Notre équipe va activer vos alertes sous 24h et vous contactera sur WhatsApp pour confirmer.</p>
+          <p style="font-size: 15px; color: #444; line-height: 1.6; margin: 0 0 28px;">Nous avons bien reçu vos critères. Notre équipe va activer vos alertes sous 48h et vous contactera sur WhatsApp pour confirmer.</p>
 
           <!-- Summary box -->
           <div style="background: #f5f5f7; border-radius: 16px; padding: 24px; margin-bottom: 28px;">
@@ -478,7 +478,7 @@ async function sendClientSetupAdminNotification(data) {
 
       <!-- Warning -->
       <div style="background: #fffbeb; border: 1px solid #fcd34d; border-radius: 12px; padding: 16px; text-align: center; margin-bottom: 20px;">
-        <p style="font-size: 14px; font-weight: 700; color: #92400e; margin: 0;">A activer sous 24h — contacter le client sur WhatsApp</p>
+        <p style="font-size: 14px; font-weight: 700; color: #92400e; margin: 0;">A activer sous 48h — contacter le client sur WhatsApp</p>
       </div>
 
       <!-- Timestamp -->

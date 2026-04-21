@@ -158,7 +158,7 @@ function generatePdfBuffer(d) {
     const warnY = doc.y;
     doc.rect(40, warnY, W, 30).fill("#fffbeb");
     doc.fillColor("#92400e").fontSize(10).font("Helvetica-Bold")
-      .text("À activer sous 24h — contacter le client sur WhatsApp", 40, warnY + 9, { align: "center", width: W });
+      .text("À activer sous 48h — contacter le client sur WhatsApp", 40, warnY + 9, { align: "center", width: W });
 
     // Footer
     doc.moveDown(3);
