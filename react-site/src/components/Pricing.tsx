@@ -13,7 +13,6 @@ const CrossIcon = () => (
 )
 
 export default function Pricing() {
-  const [isAnnual, setIsAnnual] = useState(false)
   const [waitlistEmail, setWaitlistEmail] = useState('')
   const [waitlistLoading, setWaitlistLoading] = useState(false)
   const [waitlistMessage, setWaitlistMessage] = useState('')
@@ -44,8 +43,8 @@ export default function Pricing() {
           <h2 className="section-title animate-on-scroll">Liste d'attente SniperAuto</h2>
           <p className="section-subtitle animate-on-scroll">Nous avons beaucoup de clients en attente. Rejoignez la liste et nous vous recontacterons pour intégrer SniperAuto dès qu’une place se libère.</p>
 
-          <div className="pricing-grid pricing-grid-2">
-            <div className="pricing-card animate-on-scroll" style={{ gridColumn: '1 / -1' }}>
+          <div className="pricing-grid pricing-grid-1">
+            <div className="pricing-card animate-on-scroll" style={{ gridColumn: '1 / -1', maxWidth: '720px', margin: '0 auto' }}>
               <div className="pricing-name">Rejoindre la liste d'attente</div>
               <p style={{ color: '#444', fontSize: '15px', lineHeight: 1.6, margin: '12px 0 18px' }}>
                 Nous avons beaucoup de clients en attente. Rejoignez la liste et nous vous recontacterons pour intégrer SniperAuto dès qu’une place se libère.

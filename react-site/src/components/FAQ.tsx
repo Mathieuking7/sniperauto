@@ -100,10 +100,12 @@ export default function FAQ() {
         <p className="section-subtitle animate-on-scroll">Tout ce que vous devez savoir sur SniperAuto.</p>
         <div className="faq-grid">
           {faqs.map((faq, i) => (
-            <div
+            <button
               key={i}
+              type="button"
               className={`faq-card animate-on-scroll${openIdx === i ? ' open' : ''}`}
               onClick={() => toggle(i)}
+              style={{ width: '100%', textAlign: 'left', border: 'none', background: 'white' }}
             >
               <div className="faq-card-header">
                 <div className="faq-card-icon">{faq.icon}</div>
@@ -112,7 +114,7 @@ export default function FAQ() {
               <div className="faq-card-answer">
                 <p>{faq.answer}</p>
               </div>
-            </div>
+            </button>
           ))}
         </div>
       </div>
