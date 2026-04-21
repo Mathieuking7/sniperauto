@@ -8,7 +8,6 @@ const fs = require("fs");
 const BotManager = require("./bot-manager");
 const Stripe = require("stripe");
 const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest, sendClientSetupConfirmation, sendClientSetupAdminNotification } = require("./email");
-const { HEARTBEAT_FILE } = require("./bot-monitor");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const app = express();
