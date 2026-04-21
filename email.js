@@ -513,4 +513,61 @@ async function sendClientSetupAdminNotification(data) {
   }
 }
 
-module.exports = { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest, sendClientSetupConfirmation, sendClientSetupAdminNotification };
+async function sendWaitlistConfirmation(email) {
+  try {
+    const result = await resend.emails.send({
+      from: FROM,
+      to: email,
+      subject: "Vous avez rejoint la liste d'attente SniperAuto",
+      html: `
+        <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; background: #ffffff;">
+          <div style="background: #007AFF; border-radius: 16px; padding: 28px; text-align: center; margin-bottom: 28px;">
+            <h1 style="margin: 0; font-size: 22px; font-weight: 800; color: #ffffff;">Vous êtes bien inscrit ✅</h1>
+          </div>
+          <p style="font-size: 16px; color: #1a1a1a; line-height: 1.6; margin: 0 0 16px;">
+            Merci ! Vous avez bien rejoint la liste d'attente SniperAuto.
+          </p>
+          <p style="font-size: 15px; color: #444; line-height: 1.6; margin: 0 0 28px;">
+            Nous vous recontacterons dès qu'une place se libère pour intégrer SniperAuto et configurer vos alertes véhicules.
+          </p>
+          <div style="background: #f5f5f7; border-radius: 12px; padding: 20px; text-align: center;">
+            <p style="font-size: 14px; color: #555; margin: 0;">
+              Une question ? Répondez à cet email ou contactez-nous sur WhatsApp.<br>
+              <strong style="color: #007AFF;">SniperAuto</strong> · contact@sniperauto.fr
+            </p>
+          </div>
+        </div>
+      `,
+    });
+    console.log(`[Email] Confirmation waitlist envoyée à ${email} (id: ${result.data?.id})`);
+  } catch (err) {
+    console.error("[Email] Erreur confirmation waitlist:", err.message);
+  }
+}
+
+async function sendWaitlistAdminNotification(email) {
+  const adminEmails = ["contact@sniperauto.fr", "mathieugaillac4@gmail.com"];
+  for (const adminEmail of adminEmails) {
+    try {
+      await resend.emails.send({
+        from: FROM,
+        to: adminEmail,
+        subject: `[SniperAuto] Nouvelle inscription liste d'attente — ${email}`,
+        html: `
+          <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 20px; background: #ffffff;">
+            <div style="background: #007AFF; border-radius: 16px; padding: 24px; text-align: center; margin-bottom: 24px;">
+              <h1 style="margin: 0; font-size: 20px; font-weight: 800; color: white;">Nouvelle inscription liste d'attente</h1>
+            </div>
+            <p style="font-size: 16px; color: #1a1a1a; margin: 0 0 8px;">Email : <strong><a href="mailto:${email}" style="color: #007AFF;">${email}</a></strong></p>
+            <p style="font-size: 13px; color: #888; margin: 0;">${new Date().toLocaleString("fr-FR", { timeZone: "Europe/Paris" })}</p>
+          </div>
+        `,
+      });
+      console.log(`[Email] Notification waitlist admin envoyée à ${adminEmail}`);
+    } catch (err) {
+      console.error(`[Email] Erreur notification waitlist admin à ${adminEmail}:`, err.message);
+    }
+  }
+}
+
+module.exports = { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest, sendClientSetupConfirmation, sendClientSetupAdminNotification, sendWaitlistConfirmation, sendWaitlistAdminNotification };

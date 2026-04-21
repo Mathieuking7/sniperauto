@@ -7,7 +7,7 @@ const path = require("path");
 const fs = require("fs");
 const BotManager = require("./bot-manager");
 const Stripe = require("stripe");
-const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest, sendClientSetupConfirmation, sendClientSetupAdminNotification } = require("./email");
+const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest, sendClientSetupConfirmation, sendClientSetupAdminNotification, sendWaitlistConfirmation, sendWaitlistAdminNotification } = require("./email");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const app = express();
@@ -183,7 +183,11 @@ app.post("/api/waitlist", (req, res) => {
     manager.db.prepare("INSERT OR IGNORE INTO waitlist (email) VALUES (?)").run(email);
     console.log(`[Waitlist] ${email} inscrit`);
     res.json({ ok: true });
+    // Envoi des emails en arrière-plan (après la réponse)
+    sendWaitlistConfirmation(email).catch((err) => console.error("[Email] Waitlist confirmation error:", err.message));
+    sendWaitlistAdminNotification(email).catch((err) => console.error("[Email] Waitlist admin error:", err.message));
   } catch (e) {
+    console.error("[Waitlist] Erreur:", e.message);
     res.json({ ok: true }); // don't leak errors
   }
 });
