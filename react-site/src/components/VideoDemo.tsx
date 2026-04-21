@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
-import demoPoster from '@assets/Capture_d'écran_2026-04-09_à_20.37.28_1775762281311.png'
+
+const demoPoster = '/og-image.png'
 
 function isMobile() {
   return /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)
