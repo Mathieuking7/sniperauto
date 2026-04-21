@@ -12,6 +12,7 @@ const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest,
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const app = express();
 const PORT = process.env.PORT || 3000;
+const HEARTBEAT_FILE = path.join(__dirname, ".heartbeat");
 
 // Stripe webhook needs raw body — MUST be before express.json()
 app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async (req, res) => {

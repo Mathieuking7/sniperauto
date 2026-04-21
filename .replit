@@ -42,3 +42,4 @@ ADMIN_EMAIL = "sosparebrise34.contact@gmail.com"
 [[ports]]
 localPort = 3000
 externalPort = 80
+exposeLocalhost = true
