@@ -1,0 +1,1421 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SniperAuto — Configurer mes alertes</title>
+  <link rel="icon" type="image/svg+xml" href="/favicon/favicon.svg">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #007AFF;
+      --blue-hover: #0066DD;
+      --blue-light: #EFF6FF;
+      --blue-border: #BFDBFE;
+      --dark: #0f0f0f;
+      --gray-50: #f9fafb;
+      --gray-100: #f4f4f6;
+      --gray-200: #e5e7eb;
+      --gray-300: #d1d5db;
+      --gray-400: #9ca3af;
+      --gray-500: #6b7280;
+      --gray-700: #374151;
+      --radius: 14px;
+      --radius-sm: 10px;
+    }
+
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background: #f8fafc;
+      min-height: 100vh;
+      color: var(--dark);
+      line-height: 1.5;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── SVG icon helper ──────────────────────── */
+    .icon {
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .icon svg {
+      display: block;
+    }
+
+    /* ── Header ─────────────────────────────── */
+    .header {
+      position: sticky;
+      top: 0;
+      z-index: 50;
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--gray-200);
+      padding: 0 24px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      height: 58px;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-decoration: none;
+    }
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      flex-shrink: 0;
+    }
+    .logo-text {
+      font-size: 17px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: var(--dark);
+    }
+    .logo-text span { color: var(--blue); }
+    .header-meta {
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-500);
+    }
+    .header-meta strong { color: var(--dark); }
+
+    /* ── Progress bar ───────────────────────── */
+    .progress-track {
+      height: 3px;
+      background: var(--gray-200);
+      position: sticky;
+      top: 58px;
+      z-index: 49;
+    }
+    .progress-fill {
+      height: 100%;
+      background: var(--blue);
+      border-radius: 0 2px 2px 0;
+      transition: width 0.45s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    /* ── Step dots ──────────────────────────── */
+    .dots-row {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      padding: 22px 0 0;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--gray-200);
+      transition: all 0.25s;
+    }
+    .dot.active { background: var(--blue); transform: scale(1.4); }
+    .dot.done { background: var(--blue); opacity: 0.35; }
+
+    /* ── Main layout ────────────────────────── */
+    .main {
+      max-width: 620px;
+      margin: 0 auto;
+      padding: 0 20px 120px;
+    }
+
+    /* ── Step transitions ───────────────────── */
+    .step { display: none; padding-top: 36px; }
+    .step.active { display: block; }
+    .step.active.anim-fwd { animation: stepFwd 0.32s cubic-bezier(0.4,0,0.2,1); }
+    .step.active.anim-bwd { animation: stepBwd 0.32s cubic-bezier(0.4,0,0.2,1); }
+    @keyframes stepFwd { from { opacity:0; transform:translateX(24px); } to { opacity:1; transform:translateX(0); } }
+    @keyframes stepBwd { from { opacity:0; transform:translateX(-24px); } to { opacity:1; transform:translateX(0); } }
+
+    .step-eyebrow {
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 1.4px;
+      color: var(--blue);
+      margin-bottom: 10px;
+    }
+    .step-title {
+      font-size: 26px;
+      font-weight: 900;
+      letter-spacing: -0.7px;
+      line-height: 1.2;
+      margin-bottom: 6px;
+    }
+    .step-sub {
+      font-size: 14px;
+      color: var(--gray-500);
+      margin-bottom: 28px;
+    }
+
+    /* ── Choice cards ───────────────────────── */
+    .choice-grid { display: grid; gap: 11px; }
+    .choice-grid.cols-2 { grid-template-columns: 1fr 1fr; }
+    .choice-grid.cols-3 { grid-template-columns: 1fr 1fr 1fr; }
+    @media (max-width: 480px) {
+      .choice-grid.cols-3 { grid-template-columns: 1fr 1fr; }
+    }
+
+    .choice-card {
+      display: block;
+      cursor: pointer;
+      border-radius: var(--radius);
+      border: 1.5px solid var(--gray-200);
+      background: white;
+      transition: border-color 0.18s, box-shadow 0.18s, background 0.18s;
+      position: relative;
+    }
+    .choice-card:hover { border-color: var(--gray-300); box-shadow: 0 2px 12px rgba(0,0,0,0.06); }
+    .choice-card input { position: absolute; opacity: 0; pointer-events: none; }
+
+    .choice-card-inner {
+      padding: 20px 18px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      gap: 10px;
+    }
+    .choice-card-inner.row {
+      flex-direction: row;
+      align-items: flex-start;
+      text-align: left;
+      padding: 16px 18px;
+    }
+    .choice-icon-wrap {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-500);
+      flex-shrink: 0;
+      transition: background 0.18s, color 0.18s;
+      font-size: 28px;
+      line-height: 1;
+    }
+    .choice-icon-wrap img.platform-logo {
+      width: 34px;
+      height: 34px;
+      object-fit: contain;
+      border-radius: 6px;
+    }
+    .choice-card:has(input:checked) .choice-icon-wrap img.platform-logo {
+      filter: brightness(0) invert(1);
+    }
+    .choice-card.row-icon .choice-icon-wrap {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+    }
+    .choice-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--dark);
+    }
+    .choice-desc {
+      font-size: 12px;
+      color: var(--gray-400);
+      line-height: 1.4;
+    }
+    .choice-check {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      border: 1.5px solid var(--gray-200);
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      transition: all 0.18s;
+    }
+    .choice-card:has(input:checked) {
+      border-color: var(--blue);
+      background: var(--blue-light);
+      box-shadow: 0 0 0 1px var(--blue);
+    }
+    .choice-card:has(input:checked) .choice-title { color: var(--blue); }
+    .choice-card:has(input:checked) .choice-icon-wrap {
+      background: var(--blue);
+      color: white;
+    }
+    .choice-card:has(input:checked) .choice-check {
+      background: var(--blue);
+      border-color: var(--blue);
+    }
+    .choice-check-svg { display: none; }
+    .choice-card:has(input:checked) .choice-check-svg { display: block; }
+
+    /* ── Radius pills ───────────────────────── */
+    .pill-row { display: flex; flex-wrap: wrap; gap: 8px; }
+    .pill-choice { position: relative; }
+    .pill-choice input { position: absolute; opacity: 0; }
+    .pill-choice label {
+      display: inline-flex;
+      align-items: center;
+      padding: 9px 16px;
+      border-radius: 100px;
+      border: 1.5px solid var(--gray-200);
+      background: white;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--gray-700);
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .pill-choice label:hover { border-color: var(--gray-300); }
+    .pill-choice input:checked + label {
+      background: var(--dark);
+      border-color: var(--dark);
+      color: white;
+    }
+
+    /* ── Inputs ─────────────────────────────── */
+    .field { margin-bottom: 18px; }
+    .field:last-child { margin-bottom: 0; }
+    .field-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 7px;
+    }
+    .field-hint {
+      font-size: 11px;
+      color: var(--gray-400);
+      margin-top: 4px;
+    }
+    .field-sublabel {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--gray-400);
+      margin-bottom: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .req { color: var(--blue); }
+    .input-base {
+      width: 100%;
+      padding: 12px 14px;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--dark);
+      background: white;
+      transition: border-color 0.15s, box-shadow 0.15s;
+      -webkit-appearance: none;
+    }
+    .input-base:focus {
+      outline: none;
+      border-color: var(--blue);
+      box-shadow: 0 0 0 3px rgba(0,122,255,0.12);
+    }
+    .input-base::placeholder { color: #c4c4cc; font-weight: 400; }
+    select.input-base { cursor: pointer; }
+    textarea.input-base { resize: vertical; min-height: 80px; }
+
+    .sfx-wrap { position: relative; }
+    .sfx-wrap .input-base { padding-right: 46px; }
+    .sfx {
+      position: absolute;
+      right: 13px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray-400);
+      font-size: 13px;
+      font-weight: 600;
+      pointer-events: none;
+    }
+    .range-row {
+      display: grid;
+      grid-template-columns: 1fr 28px 1fr;
+      align-items: center;
+    }
+    .range-sep {
+      text-align: center;
+      color: var(--gray-300);
+      font-size: 16px;
+    }
+    .col-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+    @media (max-width: 480px) { .col-2 { grid-template-columns: 1fr; } }
+
+    /* ── Toggle rows ────────────────────────── */
+    .toggle-list { display: flex; flex-direction: column; gap: 8px; }
+    .toggle-row {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 14px 16px;
+      background: white;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: border-color 0.18s, background 0.18s;
+    }
+    .toggle-row:has(input:checked) {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+    .toggle-row:has(input:checked) .toggle-name { color: var(--blue); }
+    .toggle-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--gray-100);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray-400);
+      flex-shrink: 0;
+      transition: background 0.18s, color 0.18s;
+      font-size: 18px;
+      line-height: 1;
+    }
+    .toggle-row:has(input:checked) .toggle-icon {
+      background: var(--blue);
+      color: white;
+    }
+    .toggle-info { flex: 1; }
+    .toggle-name { font-size: 14px; font-weight: 600; color: var(--dark); }
+    .toggle-desc { font-size: 11px; color: var(--gray-400); margin-top: 1px; }
+
+    /* Toggle switch */
+    .switch { position: relative; width: 42px; height: 24px; flex-shrink: 0; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .switch-track {
+      position: absolute;
+      inset: 0;
+      background: var(--gray-200);
+      border-radius: 12px;
+      transition: background 0.2s;
+      cursor: pointer;
+    }
+    .switch-track::after {
+      content: '';
+      position: absolute;
+      top: 3px; left: 3px;
+      width: 18px; height: 18px;
+      background: white;
+      border-radius: 50%;
+      transition: transform 0.2s;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.15);
+    }
+    .switch input:checked ~ .switch-track { background: var(--blue); }
+    .switch input:checked ~ .switch-track::after { transform: translateX(18px); }
+
+    /* ── Platform cards ─────────────────────── */
+    .platform-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; }
+    @media (max-width: 480px) { .platform-grid { grid-template-columns: 1fr; } }
+    .platform-card {
+      display: block;
+      cursor: pointer;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      background: white;
+      transition: border-color 0.18s, background 0.18s;
+      position: relative;
+    }
+    .platform-card input { position: absolute; opacity: 0; }
+    .platform-card-inner {
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      gap: 11px;
+    }
+    .platform-letter {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      background: #fff;
+      border: 1px solid var(--gray-200);
+      padding: 4px;
+      overflow: hidden;
+    }
+    .platform-letter img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+    }
+    .platform-name { font-size: 13px; font-weight: 700; color: var(--dark); }
+    .platform-desc { font-size: 11px; color: var(--gray-400); }
+    .platform-tag {
+      margin-left: auto;
+      font-size: 9px;
+      font-weight: 800;
+      padding: 2px 6px;
+      border-radius: 100px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      flex-shrink: 0;
+    }
+    .tag-pro { background: #dbeafe; color: #1d4ed8; }
+    .tag-pop { background: #d1fae5; color: #065f46; }
+    .platform-card:has(input:checked) {
+      border-color: var(--blue);
+      background: var(--blue-light);
+    }
+    .platform-card:has(input:checked) .platform-name { color: var(--blue); }
+
+    /* ── Info / alert boxes ─────────────────── */
+    .info-box {
+      background: #eff6ff;
+      border: 1.5px solid var(--blue-border);
+      border-radius: var(--radius-sm);
+      padding: 13px 15px;
+      font-size: 13px;
+      color: #1e40af;
+      margin-top: 12px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .info-box .icon { color: var(--blue); margin-top: 1px; }
+    .privacy-box {
+      background: var(--gray-50);
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      padding: 13px 15px;
+      font-size: 12px;
+      color: var(--gray-500);
+      margin-top: 14px;
+      display: flex;
+      gap: 10px;
+      align-items: flex-start;
+    }
+    .privacy-box .icon { color: var(--gray-400); flex-shrink: 0; }
+    .divider { height: 1px; background: var(--gray-100); margin: 20px 0; }
+
+    /* ── Nav footer ─────────────────────────── */
+    .nav-footer {
+      position: fixed;
+      bottom: 0; left: 0; right: 0;
+      z-index: 40;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(12px);
+      border-top: 1px solid var(--gray-200);
+      padding: 12px 20px;
+    }
+    .nav-inner {
+      max-width: 620px;
+      margin: 0 auto;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .btn-back {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      padding: 13px 18px;
+      background: none;
+      border: 1.5px solid var(--gray-200);
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 14px;
+      font-weight: 700;
+      color: var(--gray-500);
+      cursor: pointer;
+      transition: all 0.15s;
+      white-space: nowrap;
+    }
+    .btn-back:hover { border-color: var(--gray-300); color: var(--dark); }
+    .btn-back.hidden { visibility: hidden; pointer-events: none; }
+    .btn-next {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 14px 24px;
+      background: var(--dark);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-size: 15px;
+      font-weight: 800;
+      cursor: pointer;
+      transition: background 0.15s, transform 0.1s;
+      letter-spacing: -0.2px;
+    }
+    .btn-next:hover { background: #1a1a1a; }
+    .btn-next:active { transform: scale(0.99); }
+    .btn-next:disabled { opacity: 0.4; cursor: not-allowed; }
+    .btn-next.blue { background: var(--blue); }
+    .btn-next.blue:hover { background: var(--blue-hover); }
+
+    /* ── Error banner ───────────────────────── */
+    .error-msg {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 15px;
+      background: #fef2f4;
+      border: 1.5px solid #fecdd3;
+      border-radius: var(--radius-sm);
+      color: #9f1239;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 14px;
+    }
+    .error-msg .icon { flex-shrink: 0; color: #e11d48; margin-top: 1px; }
+
+    /* ── Success ────────────────────────────── */
+    .success-wrap {
+      display: none;
+      padding: 56px 20px 120px;
+      text-align: center;
+      max-width: 540px;
+      margin: 0 auto;
+    }
+    .success-wrap.visible { display: block; animation: stepFwd 0.4s ease; }
+    .success-icon-wrap {
+      width: 80px;
+      height: 80px;
+      background: #ecfdf5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 24px;
+      color: #059669;
+    }
+    .success-title { font-size: 32px; font-weight: 900; letter-spacing: -1px; margin-bottom: 10px; }
+    .success-sub { font-size: 15px; color: var(--gray-500); line-height: 1.6; margin-bottom: 24px; }
+    .success-box {
+      background: var(--gray-100);
+      border-radius: var(--radius);
+      padding: 20px 22px;
+      font-size: 14px;
+      color: var(--gray-700);
+      text-align: left;
+      line-height: 1.7;
+    }
+    .success-box strong { color: var(--dark); }
+  </style>
+</head>
+<body>
+
+  <!-- SVG sprite (hidden) -->
+  <svg xmlns="http://www.w3.org/2000/svg" style="display:none">
+    <symbol id="ic-target" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+    </symbol>
+    <symbol id="ic-tag" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20.59 13.41l-7.17 7.17a2 2 0 01-2.83 0L2 12V2h10l8.59 8.59a2 2 0 010 2.82z"/><circle cx="7" cy="7" r="1.5" fill="currentColor" stroke="none"/>
+    </symbol>
+    <symbol id="ic-building" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9m6 12V9M9 3v6m6-6v6"/>
+    </symbol>
+    <symbol id="ic-map-pin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"/><circle cx="12" cy="10" r="3"/>
+    </symbol>
+    <symbol id="ic-euro" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 10h12M4 14h12M19.5 9a7.5 7.5 0 100 6"/>
+    </symbol>
+    <symbol id="ic-car" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 012-2h2l3-4h8l3 4h2a2 2 0 012 2v4a2 2 0 01-2 2h-2"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/><path d="M5 9v4h14V9"/>
+    </symbol>
+    <symbol id="ic-suv" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 17h18v-3a2 2 0 00-2-2H5a2 2 0 00-2 2v3zm0 0H1v-1a1 1 0 011-1h1m18 0h2v-1a1 1 0 00-1-1h-1M7 12V7l2-3h6l2 3v5"/><circle cx="7.5" cy="17" r="1.5"/><circle cx="16.5" cy="17" r="1.5"/>
+    </symbol>
+    <symbol id="ic-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="1" y="3" width="15" height="13" rx="1"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+    </symbol>
+    <symbol id="ic-bike" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6h-4l-2 5.5m6-5.5l3 5.5m-3-5.5L9.5 17.5M9.5 17.5H15m0 0l-2-6"/><circle cx="10" cy="4" r="1.5"/>
+    </symbol>
+    <symbol id="ic-camper" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="6" width="16" height="12" rx="2"/><path d="M18 8h2l2 3v5h-4M10 6V3"/><rect x="5" y="10" width="4" height="3" rx="1"/><circle cx="6" cy="20" r="2"/><circle cx="18" cy="20" r="2"/>
+    </symbol>
+    <symbol id="ic-microcar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M7 17H5a2 2 0 01-2-2v-3a2 2 0 012-2h12a2 2 0 012 2v3a2 2 0 01-2 2h-2M9 10l1.5-3h3l1.5 3"/><circle cx="8.5" cy="17" r="1.5"/><circle cx="15.5" cy="17" r="1.5"/>
+    </symbol>
+    <symbol id="ic-users" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/>
+    </symbol>
+    <symbol id="ic-user" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"/><circle cx="12" cy="7" r="4"/>
+    </symbol>
+    <symbol id="ic-briefcase" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16M2 13h20"/>
+    </symbol>
+    <symbol id="ic-key" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 11-7.778 7.778 5.5 5.5 0 017.777-7.777zm0 0L15.5 7.5m0 0l3 3L22 7l-3-3m-3.5 3.5L19 4"/>
+    </symbol>
+    <symbol id="ic-shield" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+    </symbol>
+    <symbol id="ic-clipboard" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-6 9l2 2 4-4"/>
+    </symbol>
+    <symbol id="ic-search" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/>
+    </symbol>
+    <symbol id="ic-phone" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.53 11.5 19.79 19.79 0 01.46 2.87 2 2 0 012.45 1h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.91 8.44a16 16 0 006.65 6.65l1.58-1.58a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/>
+    </symbol>
+    <symbol id="ic-mail" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/>
+    </symbol>
+    <symbol id="ic-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0110 0v4"/>
+    </symbol>
+    <symbol id="ic-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+      <polyline points="20 6 9 17 4 12"/>
+    </symbol>
+    <symbol id="ic-check-circle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M22 11.08V12a10 10 0 11-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>
+    </symbol>
+    <symbol id="ic-arrow-right" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/>
+    </symbol>
+    <symbol id="ic-arrow-left" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/>
+    </symbol>
+    <symbol id="ic-alert" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+    </symbol>
+    <symbol id="ic-store" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>
+    </symbol>
+    <symbol id="ic-gavel" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M14.5 2.5l7 7-7-7zm0 0L7 10m7.5-7.5l-5 5M7 10l-5 5 2 2 5-5M7 10l2 2m-7 5l7-7m5 5l-2 2m2-2l2.5 2.5a2 2 0 11-2.83 2.83L13 20.5m2-2L7 10"/>
+    </symbol>
+    <symbol id="ic-newspaper" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4 22h16a2 2 0 002-2V4a2 2 0 00-2-2H8a2 2 0 00-2 2v16a2 2 0 01-2 2zm0 0a2 2 0 01-2-2v-9c0-1.1.9-2 2-2h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6z"/>
+    </symbol>
+    <symbol id="ic-star" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+    </symbol>
+    <symbol id="ic-info" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+      <circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/>
+    </symbol>
+  </svg>
+
+  <!-- Header -->
+  <header class="header">
+    <a class="logo" href="/">
+      <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <circle cx="16" cy="16" r="14" fill="#007AFF"/>
+        <circle cx="16" cy="16" r="10" fill="none" stroke="white" stroke-width="2"/>
+        <circle cx="16" cy="16" r="5" fill="none" stroke="white" stroke-width="2"/>
+        <circle cx="16" cy="16" r="2" fill="white"/>
+        <line x1="16" y1="2" x2="16" y2="8" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <line x1="16" y1="24" x2="16" y2="30" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <line x1="2" y1="16" x2="8" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+        <line x1="24" y1="16" x2="30" y2="16" stroke="white" stroke-width="2" stroke-linecap="round"/>
+      </svg>
+      <span class="logo-text">Sniper<span>Auto</span></span>
+    </a>
+    <div class="header-meta">Étape <strong id="step-num">1</strong> / 7</div>
+  </header>
+
+  <!-- Progress bar -->
+  <div class="progress-track">
+    <div class="progress-fill" id="progress-fill" style="width:14%"></div>
+  </div>
+
+  <!-- Main -->
+  <div class="main" id="main-form">
+    <div class="dots-row" id="dots-row">
+      <div class="dot active"></div><div class="dot"></div><div class="dot"></div>
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    </div>
+
+    <div id="error-banner"></div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 1 — Profil                    -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="step active anim-fwd" data-step="1">
+      <div class="step-eyebrow">Étape 1 — Votre profil</div>
+      <h2 class="step-title">Vous cherchez pour qui ?</h2>
+      <p class="step-sub">Cela nous aide à adapter les sources et les alertes à votre situation.</p>
+
+      <div class="choice-grid cols-3">
+        <label class="choice-card">
+          <input type="radio" name="profile" value="personal" checked>
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🎯</div>
+            <span class="choice-title">Pour mon usage</span>
+            <span class="choice-desc">Je cherche un véhicule à conduire</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+        <label class="choice-card">
+          <input type="radio" name="profile" value="investor">
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">💰</div>
+            <span class="choice-title">Pour revendre</span>
+            <span class="choice-desc">Je cherche des opportunités à marge</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+        <label class="choice-card">
+          <input type="radio" name="profile" value="fleet">
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🏢</div>
+            <span class="choice-title">Pour ma flotte</span>
+            <span class="choice-desc">Achat en volume entreprise</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 2 — Zone                      -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="step" data-step="2">
+      <div class="step-eyebrow">Étape 2 — Zone de recherche</div>
+      <h2 class="step-title">Où chercher ?</h2>
+      <p class="step-sub">Indiquez votre ville de référence et le rayon de déplacement acceptable.</p>
+
+      <div class="field">
+        <label class="field-label" for="city">Ville de référence <span class="req">*</span></label>
+        <input class="input-base" type="text" name="city" id="city" placeholder="Brest, Nantes, Lyon, Paris..." autocomplete="off">
+        <div class="field-hint">Centre de votre zone de recherche</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Rayon <span class="req">*</span></label>
+        <div class="pill-row">
+          <div class="pill-choice"><input type="radio" name="radius" id="r20" value="20"><label for="r20">20 km</label></div>
+          <div class="pill-choice"><input type="radio" name="radius" id="r50" value="50"><label for="r50">50 km</label></div>
+          <div class="pill-choice"><input type="radio" name="radius" id="r100" value="100"><label for="r100">100 km</label></div>
+          <div class="pill-choice"><input type="radio" name="radius" id="r200" value="200" checked><label for="r200">200 km</label></div>
+          <div class="pill-choice"><input type="radio" name="radius" id="r400" value="400"><label for="r400">400 km</label></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 3 — Budget                    -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="step" data-step="3">
+      <div class="step-eyebrow">Étape 3 — Budget & kilométrage</div>
+      <h2 class="step-title">Vos limites ?</h2>
+      <p class="step-sub">Définissez votre fourchette de prix, le kilométrage et la période d'immatriculation.</p>
+
+      <div class="field">
+        <label class="field-label">Fourchette de prix <span class="req">*</span></label>
+        <div class="range-row">
+          <div style="flex:1">
+            <div class="field-sublabel">Minimum</div>
+            <div class="sfx-wrap"><input class="input-base" type="number" name="minPrice" id="minPrice" min="0" placeholder="0"><span class="sfx">€</span></div>
+          </div>
+          <div class="range-sep">—</div>
+          <div style="flex:1">
+            <div class="field-sublabel">Maximum</div>
+            <div class="sfx-wrap"><input class="input-base" type="number" name="maxPrice" id="maxPrice" min="100" placeholder="15 000"><span class="sfx">€</span></div>
+          </div>
+        </div>
+        <div class="field-hint">Laissez le minimum à 0 pour ne pas avoir de plancher</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Kilométrage <span class="req">*</span></label>
+        <div class="range-row">
+          <div style="flex:1">
+            <div class="field-sublabel">Minimum</div>
+            <div class="sfx-wrap"><input class="input-base" type="number" name="minKm" id="minKm" min="0" placeholder="0"><span class="sfx">km</span></div>
+          </div>
+          <div class="range-sep">—</div>
+          <div style="flex:1">
+            <div class="field-sublabel">Maximum</div>
+            <div class="sfx-wrap"><input class="input-base" type="number" name="maxKm" id="maxKm" min="0" placeholder="150 000"><span class="sfx">km</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label">Année d'immatriculation</label>
+        <div class="range-row">
+          <div style="flex:1">
+            <div class="field-sublabel">Minimum</div>
+            <input class="input-base" type="number" name="minYear" id="minYear" min="1990" max="2025" placeholder="2010">
+          </div>
+          <div class="range-sep">—</div>
+          <div style="flex:1">
+            <div class="field-sublabel">Maximum</div>
+            <input class="input-base" type="number" name="maxYear" id="maxYear" min="1990" max="2026" placeholder="2026">
+          </div>
+        </div>
+        <div class="field-hint">Laissez vide pour ne pas filtrer sur l'année</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 4 — Véhicule                  -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="step" data-step="4">
+      <div class="step-eyebrow">Étape 4 — Le véhicule</div>
+      <h2 class="step-title">Quel type de véhicule ?</h2>
+      <p class="step-sub">Vous pouvez sélectionner plusieurs catégories.</p>
+
+      <div class="choice-grid cols-3" style="margin-bottom: 24px;">
+        <label class="choice-card">
+          <input type="checkbox" name="vehicleType" value="voiture" checked>
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🚗</div>
+            <span class="choice-title">Voiture</span>
+            <span class="choice-desc">Citadine, berline, coupé</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+        <label class="choice-card">
+          <input type="checkbox" name="vehicleType" value="4x4">
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🚙</div>
+            <span class="choice-title">SUV / 4x4</span>
+            <span class="choice-desc">Crossover, tout-terrain</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+        <label class="choice-card">
+          <input type="checkbox" name="vehicleType" value="utilitaire">
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🚐</div>
+            <span class="choice-title">Utilitaire</span>
+            <span class="choice-desc">Fourgon, camionnette</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+        <label class="choice-card">
+          <input type="checkbox" name="vehicleType" value="moto">
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🏍️</div>
+            <span class="choice-title">Moto</span>
+            <span class="choice-desc">Moto, scooter, quad</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+        <label class="choice-card">
+          <input type="checkbox" name="vehicleType" value="camping-car">
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🚌</div>
+            <span class="choice-title">Camping-car</span>
+            <span class="choice-desc">Van, fourgon aménagé</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+        <label class="choice-card">
+          <input type="checkbox" name="vehicleType" value="sans-permis">
+          <div class="choice-card-inner">
+            <div class="choice-icon-wrap">🛵</div>
+            <span class="choice-title">Sans permis</span>
+            <span class="choice-desc">VSP, microcar</span>
+          </div>
+          <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+        </label>
+      </div>
+
+      <div class="col-2">
+        <div class="field">
+          <label class="field-label">Nombre de portes</label>
+          <select class="input-base" name="numDoors">
+            <option value="">Indifférent</option>
+            <option value="2">2 portes (coupé)</option>
+            <option value="3">3 portes</option>
+            <option value="5">5 portes</option>
+            <option value="3-5">3 ou 5 portes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="field-label">Boîte de vitesses</label>
+          <select class="input-base" name="gearboxPref">
+            <option value="both">Indifférent</option>
+            <option value="manuelle">Manuelle</option>
+            <option value="automatique">Automatique</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:4px;">
+        <label class="field-label">Carburant</label>
+        <div class="pill-row">
+          <div class="pill-choice"><input type="checkbox" name="fuel" id="fd" value="diesel"><label for="fd">Diesel</label></div>
+          <div class="pill-choice"><input type="checkbox" name="fuel" id="fe" value="essence"><label for="fe">Essence</label></div>
+          <div class="pill-choice"><input type="checkbox" name="fuel" id="fh" value="hybride"><label for="fh">Hybride</label></div>
+          <div class="pill-choice"><input type="checkbox" name="fuel" id="fev" value="electrique"><label for="fev">Electrique</label></div>
+          <div class="pill-choice"><input type="checkbox" name="fuel" id="fphev" value="hybride-rechargeable"><label for="fphev">Hybride rechargeable</label></div>
+          <div class="pill-choice"><input type="checkbox" name="fuel" id="fg" value="gpl"><label for="fg">GPL</label></div>
+        </div>
+        <div class="field-hint">Aucune sélection = tous les carburants acceptés</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 5 — Vendeur & qualité         -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="step" data-step="5">
+      <div class="step-eyebrow">Étape 5 — Vendeur & qualité</div>
+      <h2 class="step-title">Vos exigences ?</h2>
+      <p class="step-sub">Précisez le type de vendeur et l'état du véhicule recherché.</p>
+
+      <div class="field">
+        <label class="field-label">Type de vendeur</label>
+        <div class="choice-grid cols-3" style="margin-bottom:0;">
+          <label class="choice-card">
+            <input type="radio" name="sellerType" value="both" checked>
+            <div class="choice-card-inner">
+              <div class="choice-icon-wrap">👥</div>
+              <span class="choice-title">Les deux</span>
+              <span class="choice-desc">Particuliers et pros</span>
+            </div>
+            <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+          </label>
+          <label class="choice-card">
+            <input type="radio" name="sellerType" value="particulier">
+            <div class="choice-card-inner">
+              <div class="choice-icon-wrap">👤</div>
+              <span class="choice-title">Particuliers</span>
+              <span class="choice-desc">LBC, Facebook</span>
+            </div>
+            <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+          </label>
+          <label class="choice-card">
+            <input type="radio" name="sellerType" value="professionnel">
+            <div class="choice-card-inner">
+              <div class="choice-icon-wrap">💼</div>
+              <span class="choice-title">Professionnels</span>
+              <span class="choice-desc">Auto1, Aramis, enchères</span>
+            </div>
+            <div class="choice-check"><svg class="choice-check-svg" width="11" height="11"><use href="#ic-check"/></svg></div>
+          </label>
+        </div>
+      </div>
+
+      <div class="field" style="margin-top:20px;">
+        <label class="field-label">Critères qualité</label>
+        <div class="toggle-list">
+          <label class="toggle-row">
+            <div class="toggle-icon">🔑</div>
+            <div class="toggle-info">
+              <div class="toggle-name">Première main uniquement</div>
+              <div class="toggle-desc">Un seul propriétaire depuis la mise en circulation</div>
+            </div>
+            <label class="switch" onclick="event.stopPropagation()">
+              <input type="checkbox" name="firstOwner" id="firstOwner">
+              <span class="switch-track"></span>
+            </label>
+          </label>
+          <label class="toggle-row">
+            <div class="toggle-icon">🛡️</div>
+            <div class="toggle-info">
+              <div class="toggle-name">Sans accident déclaré</div>
+              <div class="toggle-desc">Carrosserie vierge de tout sinistre signalé</div>
+            </div>
+            <label class="switch" onclick="event.stopPropagation()">
+              <input type="checkbox" name="noAccident" id="noAccident">
+              <span class="switch-track"></span>
+            </label>
+          </label>
+          <label class="toggle-row">
+            <div class="toggle-icon">📋</div>
+            <div class="toggle-info">
+              <div class="toggle-name">Contrôle technique valide</div>
+              <div class="toggle-desc">CT de moins de 2 ans au moment de la vente</div>
+            </div>
+            <label class="switch" onclick="event.stopPropagation()">
+              <input type="checkbox" name="ctValid" id="ctValid">
+              <span class="switch-track"></span>
+            </label>
+          </label>
+          <label class="toggle-row">
+            <div class="toggle-icon">🔍</div>
+            <div class="toggle-info">
+              <div class="toggle-name">Essai routier zéro défaut</div>
+              <div class="toggle-desc">Uniquement les meilleures notes Auto1 (rapport d'inspection)</div>
+            </div>
+            <label class="switch" onclick="event.stopPropagation()">
+              <input type="checkbox" name="zeroDefects" id="zeroDefects">
+              <span class="switch-track"></span>
+            </label>
+          </label>
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="minAutoScore">Note minimale Auto1</label>
+        <select class="input-base" name="minAutoScore" id="minAutoScore">
+          <option value="">Indifférent — toutes les voitures</option>
+          <option value="3">3 / 5 — Bon état général</option>
+          <option value="4">4 / 5 — Très bon état</option>
+          <option value="5">5 / 5 — Excellent état uniquement</option>
+        </select>
+        <div class="field-hint">Note issue du rapport d'inspection mécanique Auto1</div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 6 — Sources & marques         -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="step" data-step="6">
+      <div class="step-eyebrow">Étape 6 — Sources & marques</div>
+      <h2 class="step-title">Où et quoi surveiller ?</h2>
+      <p class="step-sub">Sélectionnez les plateformes à scraper et précisez vos préférences de marques.</p>
+
+      <div class="field">
+        <label class="field-label">Plateformes <span class="req">*</span></label>
+        <div class="platform-grid">
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="auto1" checked>
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/auto1.png" alt="Auto1"></div>
+              <div><div class="platform-name">Auto1</div><div class="platform-desc">Rapport mécanique inclus</div></div>
+            </div>
+          </label>
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="leboncoin" checked>
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/leboncoin.png" alt="LeBonCoin"></div>
+              <div><div class="platform-name">LeBonCoin</div><div class="platform-desc">Particuliers & professionnels</div></div>
+            </div>
+          </label>
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="lacentrale" checked>
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/lacentrale.png" alt="La Centrale"></div>
+              <div><div class="platform-name">La Centrale</div><div class="platform-desc">Annonces auto spécialisées</div></div>
+            </div>
+          </label>
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="facebook" checked>
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/facebook.png" alt="Facebook"></div>
+              <div><div class="platform-name">Facebook Marketplace</div><div class="platform-desc">Particuliers locaux</div></div>
+            </div>
+          </label>
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="proencheres">
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/proencheres.png" alt="Enchères VO"></div>
+              <div><div class="platform-name">Enchères VO</div><div class="platform-desc">Ventes aux enchères pros</div></div>
+            </div>
+          </label>
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="aramis">
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/aramis.svg" alt="Aramis"></div>
+              <div><div class="platform-name">Aramis Pro</div><div class="platform-desc">Stock revendeur certifié</div></div>
+            </div>
+          </label>
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="paruvendu">
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/paruvendu.png" alt="ParuVendu"></div>
+              <div><div class="platform-name">ParuVendu</div><div class="platform-desc">Petites annonces classiques</div></div>
+            </div>
+          </label>
+          <label class="platform-card">
+            <input type="checkbox" name="platforms" value="alcopa">
+            <div class="platform-card-inner">
+              <div class="platform-letter"><img src="/logos/alcopa.png" alt="Alcopa"></div>
+              <div><div class="platform-name">Alcopa Auction</div><div class="platform-desc">Enchères automobiles</div></div>
+            </div>
+          </label>
+        </div>
+        <div class="info-box">
+          <span class="icon">ℹ️</span>
+          <span><strong>Sources PRO</strong> — Auto1, Aramis, Alcopa et Enchères VO donnent accès à des stocks de marchands, ex-loueurs et ventes aux enchères, souvent sous la cote du marché.</span>
+        </div>
+      </div>
+
+      <div class="divider"></div>
+
+      <div class="col-2">
+        <div class="field">
+          <label class="field-label" for="preferredBrands">Marques / modèles souhaités</label>
+          <textarea class="input-base" name="preferredBrands" id="preferredBrands" style="min-height:70px;" placeholder="Renault Clio, Peugeot 208, Golf..."></textarea>
+          <div class="field-hint">Séparés par une virgule — vide = toutes marques</div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="excludedBrands">Marques à exclure</label>
+          <textarea class="input-base" name="excludedBrands" id="excludedBrands" style="min-height:70px;" placeholder="Dacia, Fiat, Lada..."></textarea>
+          <div class="field-hint">Séparés par une virgule</div>
+        </div>
+      </div>
+
+      <div class="col-2" style="margin-top:4px;">
+        <div class="field">
+          <label class="field-label" for="keywords">Mots-clés à inclure</label>
+          <input class="input-base" type="text" name="keywords" id="keywords" placeholder="break, 7 places, full options...">
+          <div class="field-hint">L'annonce doit contenir ces termes</div>
+        </div>
+        <div class="field">
+          <label class="field-label" for="excludeKeywords">Mots-clés à exclure</label>
+          <input class="input-base" type="text" name="excludeKeywords" id="excludeKeywords" placeholder="accidenté, export, pièces...">
+          <div class="field-hint">Annonces ignorées si ces termes apparaissent</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════════════════════════════════ -->
+    <!-- STEP 7 — Contact                   -->
+    <!-- ═══════════════════════════════════ -->
+    <div class="step" data-step="7">
+      <div class="step-eyebrow">Étape 7 — Vos coordonnées</div>
+      <h2 class="step-title">On vous contacte comment ?</h2>
+      <p class="step-sub">Vos alertes seront envoyées sur WhatsApp. Activation sous 24h.</p>
+
+      <div class="col-2">
+        <div class="field">
+          <label class="field-label" for="firstName">Prénom <span class="req">*</span></label>
+          <input class="input-base" type="text" name="firstName" id="firstName" autocomplete="given-name" placeholder="Jean">
+        </div>
+        <div class="field">
+          <label class="field-label" for="lastName">Nom <span class="req">*</span></label>
+          <input class="input-base" type="text" name="lastName" id="lastName" autocomplete="family-name" placeholder="Dupont">
+        </div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="phone">
+          <span style="display:flex;align-items:center;gap:6px;">
+<span style="font-size:16px">📱</span>
+            Numéro WhatsApp <span class="req">*</span>
+          </span>
+        </label>
+        <input class="input-base" type="tel" name="phone" id="phone" autocomplete="tel"
+               placeholder="06 12 34 56 78"
+               style="font-size:17px;font-weight:700;letter-spacing:0.3px;">
+        <div class="field-hint">Assurez-vous que WhatsApp est actif sur ce numéro — c'est ici que vous recevrez les alertes en temps réel</div>
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="email">
+          <span style="display:flex;align-items:center;gap:6px;">
+<span style="font-size:16px">✉️</span>
+            Email <span class="req">*</span>
+          </span>
+        </label>
+        <input class="input-base" type="email" name="email" id="email" autocomplete="email" placeholder="vous@exemple.com">
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="notes">Notes complémentaires</label>
+        <textarea class="input-base" name="notes" id="notes" placeholder="Ex : besoin de livraison possible, véhicule pour usage professionnel, couleur préférée..."></textarea>
+      </div>
+
+      <div class="privacy-box">
+        <span class="icon">🔒</span>
+        <span><strong style="color:var(--dark);">Vos données restent privées.</strong> Elles sont utilisées uniquement pour configurer vos alertes SniperAuto. Aucune revente, aucun démarchage commercial.</span>
+      </div>
+    </div>
+
+  </div><!-- /.main -->
+
+  <!-- Success screen -->
+  <div class="success-wrap" id="success-wrap">
+    <div class="success-icon-wrap">
+<span style="font-size:52px">🎉</span>
+    </div>
+    <h2 class="success-title">C'est enregistré !</h2>
+    <p class="success-sub">
+      Vos alertes seront activées <strong>sous 24h</strong>.<br>
+      Un email de confirmation vous a été envoyé. Dès qu'une annonce correspondant à vos critères est détectée, vous recevez un message WhatsApp avec photo, prix et lien direct.
+    </p>
+    <div class="success-box">
+      <strong>Soyez prêt à agir vite.</strong><br>
+      Nos bots scannent les plateformes toutes les 15 minutes. Les meilleures affaires disparaissent souvent en moins d'une heure — vous serez parmi les premiers avertis.
+    </div>
+  </div>
+
+  <!-- Nav footer -->
+  <div class="nav-footer" id="nav-footer">
+    <div class="nav-inner">
+      <button class="btn-back hidden" id="btn-back">
+        <svg width="15" height="15"><use href="#ic-arrow-left"/></svg> Retour
+      </button>
+      <button class="btn-next" id="btn-next">
+        Suivant <svg width="15" height="15"><use href="#ic-arrow-right"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <script>
+  (() => {
+    const TOTAL = 7;
+    let current = 1;
+    const btnBack = document.getElementById('btn-back');
+    const btnNext = document.getElementById('btn-next');
+    const progressFill = document.getElementById('progress-fill');
+    const stepNum = document.getElementById('step-num');
+    const errorBanner = document.getElementById('error-banner');
+    const navFooter = document.getElementById('nav-footer');
+    const successWrap = document.getElementById('success-wrap');
+    const mainForm = document.getElementById('main-form');
+
+    function updateUI() {
+      progressFill.style.width = ((current / TOTAL) * 100) + '%';
+      stepNum.textContent = current;
+      document.querySelectorAll('.dot').forEach((d, i) => {
+        d.classList.toggle('active', i + 1 === current);
+        d.classList.toggle('done', i + 1 < current);
+      });
+      btnBack.classList.toggle('hidden', current === 1);
+      if (current === TOTAL) {
+        btnNext.innerHTML = 'Activer mes alertes <svg width="15" height="15"><use href="#ic-check"/></svg>';
+        btnNext.classList.add('blue');
+      } else {
+        btnNext.innerHTML = 'Suivant <svg width="15" height="15"><use href="#ic-arrow-right"/></svg>';
+        btnNext.classList.remove('blue');
+      }
+      errorBanner.innerHTML = '';
+    }
+
+    function goTo(next, dir) {
+      const cur = document.querySelector(`.step[data-step="${current}"]`);
+      const nxt = document.querySelector(`.step[data-step="${next}"]`);
+      if (!nxt) return;
+      cur.classList.remove('active', 'anim-fwd', 'anim-bwd');
+      cur.style.display = '';
+      nxt.classList.remove('anim-fwd', 'anim-bwd');
+      void nxt.offsetWidth;
+      nxt.classList.add('active', dir > 0 ? 'anim-fwd' : 'anim-bwd');
+      current = next;
+      updateUI();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function showError(msg) {
+      errorBanner.innerHTML = `<div class="error-msg"><span class="icon">⚠️</span>${msg}</div>`;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function validate(step) {
+      if (step === 2) {
+        if (!document.getElementById('city').value.trim()) { showError('Indiquez votre ville de référence'); return false; }
+        if (!document.querySelector('[name="radius"]:checked')) { showError('Choisissez un rayon de recherche'); return false; }
+      }
+      if (step === 3) {
+        const maxP = parseInt(document.getElementById('maxPrice').value);
+        const maxK = parseInt(document.getElementById('maxKm').value);
+        if (!maxP || maxP < 100) { showError('Indiquez un prix maximum'); return false; }
+        if (!maxK) { showError('Indiquez un kilométrage maximum'); return false; }
+        const minP = parseInt(document.getElementById('minPrice').value) || 0;
+        if (minP > maxP) { showError('Le prix minimum ne peut pas dépasser le maximum'); return false; }
+        const minK = parseInt(document.getElementById('minKm').value) || 0;
+        if (minK && minK >= maxK) { showError('Le kilométrage minimum ne peut pas dépasser le maximum'); return false; }
+        const minY = document.getElementById('minYear').value;
+        const maxY = document.getElementById('maxYear').value;
+        if (minY && maxY && parseInt(minY) > parseInt(maxY)) { showError("L'année minimum ne peut pas être supérieure au maximum"); return false; }
+      }
+      if (step === 4) {
+        if (!document.querySelectorAll('[name="vehicleType"]:checked').length) { showError('Sélectionnez au moins un type de véhicule'); return false; }
+      }
+      if (step === 6) {
+        if (!document.querySelectorAll('[name="platforms"]:checked').length) { showError('Sélectionnez au moins une plateforme à surveiller'); return false; }
+      }
+      if (step === 7) {
+        if (!document.getElementById('firstName').value.trim()) { showError('Indiquez votre prénom'); return false; }
+        if (!document.getElementById('lastName').value.trim()) { showError('Indiquez votre nom'); return false; }
+        if (!document.getElementById('phone').value.trim()) { showError('Indiquez votre numéro WhatsApp'); return false; }
+        const em = document.getElementById('email').value.trim();
+        if (!em || !em.includes('@')) { showError('Indiquez une adresse email valide'); return false; }
+      }
+      return true;
+    }
+
+    btnNext.addEventListener('click', async () => {
+      if (!validate(current)) return;
+      if (current < TOTAL) { goTo(current + 1, 1); }
+      else { await submitForm(); }
+    });
+    btnBack.addEventListener('click', () => { if (current > 1) goTo(current - 1, -1); });
+
+    // Auto-advance step 1 on profile selection
+    document.querySelectorAll('[name="profile"]').forEach(r => {
+      r.addEventListener('change', () => setTimeout(() => goTo(2, 1), 260));
+    });
+
+    async function submitForm() {
+      btnNext.disabled = true;
+      btnNext.innerHTML = 'Envoi en cours...';
+      errorBanner.innerHTML = '';
+
+      const vals = n => Array.from(document.querySelectorAll(`[name="${n}"]:checked`)).map(e => e.value);
+      const val  = n => { const e = document.querySelector(`[name="${n}"]`); return e ? e.value : ''; };
+      const vrad = n => { const e = document.querySelector(`[name="${n}"]:checked`); return e ? e.value : ''; };
+      const chk  = n => { const e = document.getElementById(n); return e ? e.checked : false; };
+
+      const payload = {
+        profile: vrad('profile') || 'personal',
+        firstName: val('firstName').trim(),
+        lastName: val('lastName').trim(),
+        phone: val('phone').trim(),
+        email: val('email').trim(),
+        city: val('city').trim(),
+        radius: parseInt(vrad('radius')) || 200,
+        minPrice: parseInt(document.getElementById('minPrice').value) || 0,
+        maxPrice: parseInt(document.getElementById('maxPrice').value),
+        minKm: parseInt(document.getElementById('minKm').value) || 0,
+        maxKm: parseInt(document.getElementById('maxKm').value),
+        minYear: document.getElementById('minYear').value ? parseInt(document.getElementById('minYear').value) : null,
+        maxYear: document.getElementById('maxYear').value ? parseInt(document.getElementById('maxYear').value) : null,
+        vehicleType: vals('vehicleType'),
+        numDoors: val('numDoors'),
+        gearboxPref: val('gearboxPref') || 'both',
+        fuel: vals('fuel'),
+        sellerType: vrad('sellerType') || 'both',
+        firstOwner: chk('firstOwner'),
+        noAccident: chk('noAccident'),
+        ctValid: chk('ctValid'),
+        zeroDefects: chk('zeroDefects'),
+        minAutoScore: val('minAutoScore'),
+        platforms: vals('platforms'),
+        preferredBrands: val('preferredBrands'),
+        excludedBrands: val('excludedBrands'),
+        keywords: val('keywords'),
+        excludeKeywords: val('excludeKeywords'),
+        notes: val('notes'),
+        options: [], colors: [], evoCities: [], minCV: null, maxCV: null,
+      };
+
+      try {
+        const res = await fetch('/api/client-setup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        });
+        if (!res.ok) {
+          const err = await res.json().catch(() => ({ error: 'Erreur serveur' }));
+          throw new Error(err.error || 'Erreur serveur');
+        }
+        progressFill.style.width = '100%';
+        mainForm.style.display = 'none';
+        navFooter.style.display = 'none';
+        successWrap.classList.add('visible');
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      } catch (err) {
+        showError(err.message || "Erreur lors de l'envoi — réessayez.");
+        btnNext.disabled = false;
+        btnNext.innerHTML = 'Activer mes alertes <svg width="15" height="15"><use href="#ic-check"/></svg>';
+      }
+    }
+
+    updateUI();
+  })();
+  </script>
+</body>
+</html>
