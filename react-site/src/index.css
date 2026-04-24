@@ -1770,29 +1770,63 @@ section {
   letter-spacing: 0.5px;
 }
 
+/* Video player */
+.reserved-video-wrap {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #000;
+  line-height: 0;
+}
+
 .reserved-video {
   width: 100%;
-  border-radius: 12px;
   display: block;
+  border-radius: 12px;
 }
 
-.reserved-benefits {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-
-.reserved-benefit-card {
+.reserved-video-play-overlay {
+  position: absolute;
+  inset: 0;
   display: flex;
   align-items: center;
-  gap: 10px;
-  background: white;
-  border-radius: 10px;
-  padding: 10px 14px;
-  font-size: 14px;
-  color: #333;
-  font-weight: 500;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  justify-content: center;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.reserved-video-play-overlay:hover svg circle {
+  fill: rgba(0,0,0,0.7);
+}
+
+.reserved-video-controls {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.reserved-video-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(0,0,0,0.55);
+  border: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s;
+  padding: 0;
+}
+
+.reserved-video-btn:hover {
+  background: rgba(0,0,0,0.8);
 }
 
 /* Right column */
