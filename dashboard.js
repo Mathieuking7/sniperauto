@@ -8,6 +8,11 @@ const fs = require("fs");
 const BotManager = require("./bot-manager");
 const Stripe = require("stripe");
 const { sendSubscriptionConfirmation, sendAdminNotification, sendContactRequest, sendClientSetupConfirmation, sendClientSetupAdminNotification, sendWaitlistConfirmation, sendWaitlistAdminNotification } = require("./email");
+const {
+  createReservationsTable, upsertReservation, getReservation,
+  expireReservation, markReservationOpened, markReservationConverted,
+  markReservationWaitlisted,
+} = require("./db");
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || 'sk_test_placeholder');
 const app = express();
@@ -49,6 +54,11 @@ app.post("/api/stripe/webhook", express.raw({ type: "application/json" }), async
       console.error("[Stripe] DB error:", e.message);
     }
 
+    // Mark reservation as converted if slug present
+    if (session.metadata?.slug) {
+      markReservationConverted(manager.db, session.metadata.slug);
+    }
+
     // Send emails
     await sendSubscriptionConfirmation(userInfo, plan, billing);
     await sendAdminNotification(userInfo, plan, billing);
@@ -79,6 +89,12 @@ app.get("/onboarding", (req, res) => {
 
 // Initialize bot manager
 const manager = new BotManager();
+createReservationsTable(manager.db);
+
+// SPA fallback: serve React app for reservation pages
+app.get("/r/*", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
 
 // Heartbeat for bot monitor (write every 10s to prove liveness)
 setInterval(() => {
@@ -192,6 +208,63 @@ app.post("/api/waitlist", (req, res) => {
   }
 });
 
+// Reservations: get by slug
+app.get("/api/reservations/:slug", (req, res) => {
+  const row = getReservation(manager.db, req.params.slug);
+  if (!row) return res.status(404).json({ error: "Not found" });
+
+  if (row.status === "active" && row.deadline < Date.now()) {
+    expireReservation(manager.db, row.slug);
+    row.status = "expired";
+  }
+
+  markReservationOpened(manager.db, row.slug);
+
+  res.json({
+    slug: row.slug,
+    firstName: row.firstName,
+    email: row.email,
+    deadline: row.deadline,
+    status: row.status,
+  });
+});
+
+// Reservations: seed (admin only)
+app.post("/api/reservations/seed", (req, res) => {
+  const token = req.headers["x-admin-token"];
+  if (!token || token !== process.env.ADMIN_TOKEN) {
+    return res.status(401).json({ error: "Unauthorized" });
+  }
+  const { reservations, durationHours = 48 } = req.body;
+  if (!Array.isArray(reservations) || reservations.length === 0) {
+    return res.status(400).json({ error: "Missing reservations array" });
+  }
+  const deadline = Date.now() + durationHours * 3600 * 1000;
+  for (const r of reservations) {
+    upsertReservation(manager.db, { slug: r.slug, email: r.email, firstName: r.firstName || "", deadline });
+  }
+  res.json({ ok: true, deadline, count: reservations.length });
+});
+
+// Reservations: re-join waitlist after expiry
+app.post("/api/reservations/:slug/waitlist", async (req, res) => {
+  const row = getReservation(manager.db, req.params.slug);
+  if (!row) return res.status(404).json({ error: "Not found" });
+  if (!["expired", "waitlisted"].includes(row.status)) {
+    return res.status(400).json({ error: "Reservation not expired" });
+  }
+  manager.db.exec(`CREATE TABLE IF NOT EXISTS waitlist (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    email TEXT UNIQUE,
+    created_at TEXT DEFAULT (datetime('now'))
+  )`);
+  manager.db.prepare("INSERT OR IGNORE INTO waitlist (email) VALUES (?)").run(row.email);
+  markReservationWaitlisted(manager.db, row.slug);
+  res.json({ ok: true });
+  sendWaitlistConfirmation(row.email).catch((e) => console.warn("[Reservation/Waitlist] Email KO:", e.message));
+  sendWaitlistAdminNotification(row.email).catch((e) => console.warn("[Reservation/Waitlist] Admin email KO:", e.message));
+});
+
 // Stripe Checkout
 const PRICE_MAP = {
   essentiel_monthly: process.env.STRIPE_PRICE_ESSENTIEL_MONTHLY,
@@ -205,7 +278,16 @@ const SETUP_FEE_MAP = {
 };
 
 app.post("/api/checkout", async (req, res) => {
-  const { plan, billing, firstName = "", lastName = "", email = "", phone = "", companyName = "" } = req.body;
+  const { plan, billing, firstName = "", lastName = "", email = "", phone = "", companyName = "", slug = null } = req.body;
+
+  if (slug) {
+    const reservation = getReservation(manager.db, slug);
+    if (!reservation) return res.status(404).json({ error: "Réservation introuvable" });
+    if (reservation.status !== "active" || reservation.deadline < Date.now()) {
+      return res.status(410).json({ error: "Réservation expirée" });
+    }
+  }
+
   const priceKey = `${plan}_${billing}`;
   const priceId = PRICE_MAP[priceKey];
   const setupPriceId = SETUP_FEE_MAP[plan];
@@ -220,7 +302,7 @@ app.post("/api/checkout", async (req, res) => {
       mode: "subscription",
       payment_method_types: ["card"],
       line_items: lineItems,
-      metadata: { plan, billing, firstName, lastName, email, phone, companyName },
+      metadata: { plan, billing, firstName, lastName, email, phone, companyName, ...(slug ? { slug } : {}) },
       success_url: `${req.protocol}://${req.get("host")}/success.html`,
       cancel_url: `${req.protocol}://${req.get("host")}/#pricing`,
       locale: "fr",

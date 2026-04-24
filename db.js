@@ -83,4 +83,66 @@ function getTodayDeals(db) {
     .all();
 }
 
-module.exports = { getDb, upsertDeal, getUnnotifiedDeals, markNotified, getTodayDeals };
+function createReservationsTable(db) {
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS reservations (
+      slug TEXT PRIMARY KEY,
+      email TEXT NOT NULL,
+      firstName TEXT DEFAULT '',
+      deadline INTEGER NOT NULL,
+      status TEXT NOT NULL DEFAULT 'active',
+      createdAt INTEGER NOT NULL,
+      openedAt INTEGER,
+      convertedAt INTEGER
+    );
+    CREATE INDEX IF NOT EXISTS idx_reservations_email ON reservations(email);
+  `);
+}
+
+function upsertReservation(db, { slug, email, firstName, deadline }) {
+  return db.prepare(`
+    INSERT INTO reservations (slug, email, firstName, deadline, status, createdAt)
+    VALUES (?, ?, ?, ?, 'active', ?)
+    ON CONFLICT(slug) DO UPDATE SET
+      email = excluded.email,
+      firstName = excluded.firstName,
+      deadline = excluded.deadline,
+      status = 'active',
+      createdAt = excluded.createdAt
+  `).run(slug, email, firstName || '', deadline, Date.now());
+}
+
+function getReservation(db, slug) {
+  return db.prepare('SELECT * FROM reservations WHERE slug = ?').get(slug);
+}
+
+function expireReservation(db, slug) {
+  db.prepare("UPDATE reservations SET status = 'expired' WHERE slug = ? AND status = 'active'").run(slug);
+}
+
+function markReservationOpened(db, slug) {
+  db.prepare('UPDATE reservations SET openedAt = ? WHERE slug = ? AND openedAt IS NULL').run(Date.now(), slug);
+}
+
+function markReservationConverted(db, slug) {
+  db.prepare("UPDATE reservations SET status = 'converted', convertedAt = ? WHERE slug = ?").run(Date.now(), slug);
+}
+
+function markReservationWaitlisted(db, slug) {
+  db.prepare("UPDATE reservations SET status = 'waitlisted' WHERE slug = ?").run(slug);
+}
+
+module.exports = {
+  getDb,
+  upsertDeal,
+  getUnnotifiedDeals,
+  markNotified,
+  getTodayDeals,
+  createReservationsTable,
+  upsertReservation,
+  getReservation,
+  expireReservation,
+  markReservationOpened,
+  markReservationConverted,
+  markReservationWaitlisted,
+};
