@@ -90,6 +90,11 @@ app.get("/onboarding", (req, res) => {
 // Initialize bot manager
 const manager = new BotManager();
 createReservationsTable(manager.db);
+manager.db.exec(`CREATE TABLE IF NOT EXISTS waitlist (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  email TEXT UNIQUE,
+  created_at TEXT DEFAULT (datetime('now'))
+)`);
 
 // SPA fallback: serve React app for reservation pages
 app.get("/r/*", (req, res) => {
@@ -191,11 +196,6 @@ app.post("/api/waitlist", (req, res) => {
   const { email } = req.body;
   if (!email) return res.status(400).json({ error: "Email required" });
   try {
-    manager.db.exec(`CREATE TABLE IF NOT EXISTS waitlist (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      email TEXT UNIQUE,
-      created_at TEXT DEFAULT (datetime('now'))
-    )`);
     manager.db.prepare("INSERT OR IGNORE INTO waitlist (email) VALUES (?)").run(email);
     console.log(`[Waitlist] ${email} inscrit`);
     res.json({ ok: true });
@@ -253,11 +253,6 @@ app.post("/api/reservations/:slug/waitlist", async (req, res) => {
   if (!["expired", "waitlisted"].includes(row.status)) {
     return res.status(400).json({ error: "Reservation not expired" });
   }
-  manager.db.exec(`CREATE TABLE IF NOT EXISTS waitlist (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    email TEXT UNIQUE,
-    created_at TEXT DEFAULT (datetime('now'))
-  )`);
   manager.db.prepare("INSERT OR IGNORE INTO waitlist (email) VALUES (?)").run(row.email);
   markReservationWaitlisted(manager.db, row.slug);
   res.json({ ok: true });
