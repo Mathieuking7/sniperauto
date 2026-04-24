@@ -9,3 +9,4 @@ remotion-video/node_modules/
 remotion-video/out/
 logs/
 *.log
+.heartbeat
