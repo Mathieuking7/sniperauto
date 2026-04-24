@@ -85,7 +85,6 @@ function ReservedVideoPlayer({ src }: { src: string }) {
         onPlay={() => setPlaying(true)}
         onPause={() => setPlaying(false)}
       />
-      {/* Big play overlay when paused */}
       {!playing && (
         <button className="reserved-video-play-overlay" onClick={togglePlay} aria-label="Lire la vidéo">
           <svg width="48" height="48" viewBox="0 0 48 48" fill="none">
@@ -94,7 +93,6 @@ function ReservedVideoPlayer({ src }: { src: string }) {
           </svg>
         </button>
       )}
-      {/* Bottom controls bar */}
       <div className="reserved-video-controls">
         <button className="reserved-video-btn" onClick={togglePlay} aria-label={playing ? 'Pause' : 'Lecture'}>
           {playing ? (
@@ -128,32 +126,61 @@ function ReservedVideoPlayer({ src }: { src: string }) {
   )
 }
 
-export default function ReservedPage() {
-  const { slug } = useParams<{ slug: string }>()
-  const [reservation, setReservation] = useState<Reservation | null>(null)
-  const [loading, setLoading] = useState(true)
-  const [notFound, setNotFound] = useState(false)
-  const [expired, setExpired] = useState(false)
+/* ── Shared Nav ── */
+const ReservedNav = () => (
+  <nav className="reserved-nav">
+    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+      <RadarLogo />
+      <span style={{ fontWeight: 800, fontSize: '17px', color: '#1a1a1a' }}>SniperAuto</span>
+    </div>
+    <span style={{ fontSize: '13px', color: '#888' }}>🔒 Page personnelle sécurisée</span>
+  </nav>
+)
+
+/* ── Converted page ── */
+function ConvertedPage({ firstName }: { firstName: string }) {
+  const openCrisp = () => (window as CrispWindow).$crisp?.push(['do', 'chat:open'])
+  return (
+    <div className="reserved-page">
+      <ReservedNav />
+      <div className="reserved-expired-wrap">
+        <div style={{ fontSize: '56px', marginBottom: '12px' }}>🎉</div>
+        <h1 className="reserved-expired-title">
+          Bienvenue dans SniperAuto{firstName ? `, ${firstName}` : ''} !
+        </h1>
+        <p className="reserved-expired-body">
+          Votre abonnement est actif. Notre équipe va vous contacter dans les prochaines heures
+          pour finaliser la configuration de vos alertes.
+        </p>
+        <div className="reserved-converted-steps">
+          <div className="reserved-step">
+            <span className="reserved-step-num">1</span>
+            <span>Vous recevrez un message WhatsApp de notre équipe</span>
+          </div>
+          <div className="reserved-step">
+            <span className="reserved-step-num">2</span>
+            <span>On configure ensemble vos critères de recherche</span>
+          </div>
+          <div className="reserved-step">
+            <span className="reserved-step-num">3</span>
+            <span>Les alertes démarrent — vous ne ratez plus aucun deal</span>
+          </div>
+        </div>
+        <div style={{ marginTop: '28px' }}>
+          <button className="reserved-crisp-link" onClick={openCrisp}>
+            💬 Une question ? Discuter avec nous →
+          </button>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Expired / Waitlisted page ── */
+function ExpiredPage({ slug, firstName }: { slug: string; firstName: string }) {
   const [waitlistLoading, setWaitlistLoading] = useState(false)
   const [waitlistDone, setWaitlistDone] = useState(false)
-
-  useEffect(() => {
-    fetch(`/api/reservations/${slug}`)
-      .then((r) => {
-        if (r.status === 404) { setNotFound(true); return null }
-        return r.json()
-      })
-      .then((data: Reservation | null) => {
-        if (!data) return
-        setReservation(data)
-        if (data.status !== 'active' || data.deadline <= Date.now()) {
-          setExpired(true)
-        }
-      })
-      .finally(() => setLoading(false))
-  }, [slug])
-
-  const handleExpire = useCallback(() => setExpired(true), [])
+  const openCrisp = () => (window as CrispWindow).$crisp?.push(['do', 'chat:open'])
 
   const handleWaitlist = async () => {
     setWaitlistLoading(true)
@@ -165,10 +192,83 @@ export default function ReservedPage() {
     }
   }
 
-  const openCrisp = () => {
-    (window as CrispWindow).$crisp?.push(['do', 'chat:open'])
-  }
+  return (
+    <div className="reserved-page">
+      <ReservedNav />
+      <div className="reserved-expired-wrap">
+        <div style={{ fontSize: '56px', marginBottom: '12px' }}>⌛</div>
+        <h1 className="reserved-expired-title">Votre place a été réattribuée</h1>
+        <p className="reserved-expired-body">
+          Le délai de 48h est écoulé{firstName ? `, ${firstName}` : ''}. Votre place a été proposée
+          au prochain client de la liste d'attente.
+        </p>
 
+        {waitlistDone ? (
+          <div className="reserved-waitlist-confirm">
+            <span style={{ fontSize: '24px' }}>✅</span>
+            <p style={{ fontWeight: 600, color: '#1a1a1a', margin: 0 }}>Vous êtes inscrit sur la liste</p>
+            <p style={{ color: '#666', fontSize: '14px', margin: 0 }}>
+              On vous recontacte dès qu'une place se libère.
+            </p>
+          </div>
+        ) : (
+          <button
+            className="reserved-cta-primary"
+            onClick={handleWaitlist}
+            disabled={waitlistLoading}
+            style={{ marginTop: '20px', maxWidth: '320px' }}
+          >
+            {waitlistLoading ? 'Inscription...' : "Rejoindre la liste d'attente →"}
+          </button>
+        )}
+
+        <div style={{ marginTop: '24px' }}>
+          <button className="reserved-crisp-link" onClick={openCrisp}>
+            💬 Une question ? Discuter avec nous →
+          </button>
+        </div>
+
+        <div style={{ marginTop: '40px', width: '100%', maxWidth: '440px' }}>
+          <p className="reserved-col-label" style={{ textAlign: 'center', marginBottom: '10px' }}>
+            En attendant — comment ça marche
+          </p>
+          <ReservedVideoPlayer src="/demo-sniperauto.mp4" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/* ── Main component ── */
+export default function ReservedPage() {
+  const { slug } = useParams<{ slug: string }>()
+  const [reservation, setReservation] = useState<Reservation | null>(null)
+  const [loading, setLoading] = useState(true)
+  const [notFound, setNotFound] = useState(false)
+  const [fetchError, setFetchError] = useState(false)
+  const [expired, setExpired] = useState(false)
+
+  useEffect(() => {
+    fetch(`/api/reservations/${slug}`)
+      .then((r) => {
+        if (r.status === 404) { setNotFound(true); return null }
+        if (!r.ok) { setFetchError(true); return null }
+        return r.json()
+      })
+      .then((data: Reservation | null) => {
+        if (!data) return
+        setReservation(data)
+        if (data.status !== 'active' || data.deadline <= Date.now()) {
+          setExpired(true)
+        }
+      })
+      .catch(() => setFetchError(true))
+      .finally(() => setLoading(false))
+  }, [slug])
+
+  const handleExpire = useCallback(() => setExpired(true), [])
+
+  /* ── Loading ── */
   if (loading) {
     return (
       <div style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
@@ -177,103 +277,72 @@ export default function ReservedPage() {
     )
   }
 
+  /* ── Not found ── */
   if (notFound) {
     return (
-      <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '16px', fontFamily: '-apple-system, sans-serif' }}>
-        <h1 style={{ fontSize: '24px', color: '#1a1a1a' }}>Ce lien n'existe pas</h1>
-        <a href="/" style={{ color: '#007AFF', fontSize: '16px' }}>Retour à l'accueil</a>
+      <div className="reserved-page">
+        <ReservedNav />
+        <div className="reserved-expired-wrap">
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}>🔍</div>
+          <h1 className="reserved-expired-title">Ce lien n'existe pas</h1>
+          <p className="reserved-expired-body">Vérifiez le lien ou contactez-nous.</p>
+          <a href="/" className="reserved-cta-primary" style={{ display: 'inline-block', marginTop: '20px', textDecoration: 'none', padding: '12px 28px', borderRadius: '12px' }}>
+            Retour à l'accueil
+          </a>
+        </div>
       </div>
     )
   }
 
-  const res = reservation!
-  const isConverted = res.status === 'converted'
-  const isExpiredOrWaitlisted = expired || ['expired', 'waitlisted'].includes(res.status)
+  /* ── Fetch error ── */
+  if (fetchError || !reservation) {
+    return (
+      <div className="reserved-page">
+        <ReservedNav />
+        <div className="reserved-expired-wrap">
+          <div style={{ fontSize: '48px', marginBottom: '12px' }}>⚠️</div>
+          <h1 className="reserved-expired-title">Une erreur est survenue</h1>
+          <p className="reserved-expired-body">Impossible de charger votre page. Réessayez dans quelques instants.</p>
+          <button className="reserved-cta-primary" onClick={() => window.location.reload()} style={{ marginTop: '20px' }}>
+            Réessayer
+          </button>
+        </div>
+      </div>
+    )
+  }
 
+  /* ── Converted ── */
+  if (reservation.status === 'converted') {
+    return <ConvertedPage firstName={reservation.firstName} />
+  }
+
+  /* ── Expired / Waitlisted ── */
+  if (expired || reservation.status === 'expired' || reservation.status === 'waitlisted') {
+    return <ExpiredPage slug={reservation.slug} firstName={reservation.firstName} />
+  }
+
+  /* ── Active ── */
   return (
     <div className="reserved-page">
-      {/* Nav */}
-      <nav className="reserved-nav">
-        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-          <RadarLogo />
-          <span style={{ fontWeight: 800, fontSize: '17px', color: '#1a1a1a' }}>SniperAuto</span>
+      <ReservedNav />
+      <div className="reserved-hero">
+        <p className="reserved-eyebrow">👋 Bonjour {reservation.firstName || ''}</p>
+        <h1 className="reserved-title">
+          Votre place est réservée <span style={{ color: '#007AFF' }}>48 h</span>
+        </h1>
+        <p className="reserved-subtitle">
+          Passé ce délai, elle sera réattribuée au prochain client de la liste d'attente.
+        </p>
+        <Countdown deadline={reservation.deadline} onExpire={handleExpire} />
+      </div>
+
+      <div className="reserved-grid">
+        <div className="reserved-col-left">
+          <p className="reserved-col-label">Rappel — comment ça marche</p>
+          <ReservedVideoPlayer src="/demo-sniperauto.mp4" />
         </div>
-        <span style={{ fontSize: '13px', color: '#888' }}>🔒 Page personnelle sécurisée</span>
-      </nav>
-
-      {isExpiredOrWaitlisted || isConverted ? (
-        /* ── Expiry / Converted state ── */
-        <div className="reserved-expired-wrap">
-          {isConverted ? (
-            <>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>✅</div>
-              <h1 className="reserved-expired-title">Votre abonnement SniperAuto est actif</h1>
-              <p className="reserved-expired-body">
-                Bienvenue dans SniperAuto ! Notre équipe vous contacte pour finaliser votre configuration.
-              </p>
-              <a href="/" className="reserved-cta-primary" style={{ display: 'inline-block', marginTop: '16px', textDecoration: 'none', padding: '12px 24px', borderRadius: '12px' }}>
-                Retour à l'accueil
-              </a>
-            </>
-          ) : (
-            <>
-              <div style={{ fontSize: '48px', marginBottom: '16px' }}>⌛</div>
-              <h1 className="reserved-expired-title">Votre place a été réattribuée</h1>
-              <p className="reserved-expired-body">
-                Le délai de 48h est écoulé. Votre place a été proposée à un autre client de la liste d'attente.
-                Vous pouvez rejoindre la liste à nouveau pour être recontacté dès qu'une nouvelle place se libère.
-              </p>
-              {waitlistDone ? (
-                <p style={{ color: '#34c759', fontWeight: 600, marginTop: '16px', fontSize: '16px' }}>
-                  ✅ Vous êtes inscrit, nous vous recontacterons.
-                </p>
-              ) : (
-                <button className="reserved-cta-primary" onClick={handleWaitlist} disabled={waitlistLoading} style={{ marginTop: '16px' }}>
-                  {waitlistLoading ? 'Inscription...' : "Rejoindre à nouveau la liste d'attente"}
-                </button>
-              )}
-            </>
-          )}
-
-          <div style={{ marginTop: '24px' }}>
-            <button className="reserved-crisp-link" onClick={openCrisp}>
-              💬 Une question ? Discuter avec nous →
-            </button>
-          </div>
-
-          <div style={{ marginTop: '40px', textAlign: 'center', width: '100%', maxWidth: '480px' }}>
-            <p style={{ fontSize: '11px', color: '#aaa', marginBottom: '10px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>
-              Rappel — comment ça marche
-            </p>
-            <ReservedVideoPlayer src="/demo-sniperauto.mp4" />
-          </div>
-        </div>
-      ) : (
-        /* ── Active state ── */
-        <>
-          <div className="reserved-hero">
-            <p className="reserved-eyebrow">👋 Bonjour {res.firstName || ''}</p>
-            <h1 className="reserved-title">
-              Votre place est réservée <span style={{ color: '#007AFF' }}>48 h</span>
-            </h1>
-            <p className="reserved-subtitle">
-              Passé ce délai, elle sera réattribuée au prochain client de la liste d'attente.
-            </p>
-            <Countdown deadline={res.deadline} onExpire={handleExpire} />
-          </div>
-
-          <div className="reserved-grid">
-            {/* Left: video player */}
-            <div className="reserved-col-left">
-              <p className="reserved-col-label">Rappel — comment ça marche</p>
-              <ReservedVideoPlayer src="/demo-sniperauto.mp4" />
-            </div>
-
-            {/* Right: pricing */}
-            <ReservedPricing slug={res.slug} email={res.email} firstName={res.firstName} />
-          </div>
-        </>
-      )}
+        <ReservedPricing slug={reservation.slug} email={reservation.email} firstName={reservation.firstName} />
+      </div>
     </div>
   )
 }
